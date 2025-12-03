@@ -1,0 +1,123 @@
+/*******************************************************************************
+ * Copyright (C) 2025, 1C-Soft LLC and others.
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     1C-Soft LLC - initial API and implementation
+ *******************************************************************************/
+package com.e1c.v8codestyle.bsl.comment.check.itests;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
+import org.junit.Test;
+
+import com._1c.g5.v8.dt.validation.marker.Marker;
+import com._1c.g5.v8.dt.validation.marker.StandardExtraInfo;
+import com.e1c.v8codestyle.bsl.check.itests.AbstractSingleModuleTestBase;
+import com.e1c.v8codestyle.bsl.comment.check.LinkPartSpaceCheck;
+
+/**
+ * Tests for {@link LinkPartSpaceCheck} check.
+ *
+ * @author Ivan Sergeev
+ */
+public class LinkPartSpaceCheckTest
+    extends AbstractSingleModuleTestBase
+{
+    private static final String PROJECT_NAME = "EventHandlerBooleanParam";
+
+    private static final String MODULE_FILE_NAME = "/src/Catalogs/Products/ManagerModule.bsl";
+
+    public LinkPartSpaceCheckTest()
+    {
+        super(LinkPartSpaceCheck.class);
+    }
+
+    @Override
+    protected boolean enableCleanUp()
+    {
+        return true;
+    }
+
+    @Override
+    protected String getTestConfigurationName()
+    {
+        return PROJECT_NAME;
+    }
+
+    @Override
+    protected String getModuleFileName()
+    {
+        return MODULE_FILE_NAME;
+    }
+
+    /**
+     * Test incorrect link.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLink() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-missing-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test incorrect link after another link.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testLinkAfter() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-missing-link-part-after.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(4), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test incorrect link before another link
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testLinkBefore() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-missing-link-part-before.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test correct link.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testCorrectLink() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-non-missing-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertTrue(markers.isEmpty());
+    }
+}
