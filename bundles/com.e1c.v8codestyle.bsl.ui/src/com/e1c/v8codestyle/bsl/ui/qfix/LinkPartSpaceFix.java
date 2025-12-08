@@ -64,6 +64,10 @@ public class LinkPartSpaceFix
                 return null;
             }
             String editText = node.getText();
+            if (editText.length() < issueOffset + 1)
+            {
+                return null;
+            }
             char checkChar = editText.charAt(issueOffset + 1);
 
             if (!Character.isLetter(checkChar))

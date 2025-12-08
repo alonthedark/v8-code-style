@@ -76,6 +76,70 @@ public class LinkPartSpaceCheckTest
     }
 
     /**
+     * Test incorrect link with underscore.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkWithUnderscore() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "extra-underscore-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test incorrect link with colon before.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkWithColonBeforeUnderscore() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "extra-colon-before-underscore-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test incorrect link with colon.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkWithColon() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "extra-colon-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test incorrect link with colon before space.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkWithColonBeforeSpace() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "extra-colon-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
      * Test incorrect link after another link.
      *
      * @throws Exception the exception
