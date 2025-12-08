@@ -20,6 +20,7 @@ import org.eclipse.xtext.scoping.IScopeProvider;
 
 import com._1c.g5.v8.dt.bsl.documentation.comment.BslDocumentationComment;
 import com._1c.g5.v8.dt.bsl.documentation.comment.BslDocumentationComment.Description;
+import com._1c.g5.v8.dt.bsl.documentation.comment.IBslCommentToken;
 import com._1c.g5.v8.dt.bsl.documentation.comment.IDescriptionPart;
 import com._1c.g5.v8.dt.bsl.documentation.comment.LinkPart;
 import com._1c.g5.v8.dt.bsl.model.Method;
@@ -98,12 +99,16 @@ public class LinkPartSpaceCheck
             {
                 return;
             }
-            if (checkString.toLowerCase().indexOf("См.".toLowerCase()) != -1 //$NON-NLS-1$
-                || checkString.toLowerCase().indexOf("See".toLowerCase()) != -1) //$NON-NLS-1$
+            String textMethod = node.getText();
+            if (checkString.toLowerCase().indexOf(IBslCommentToken.LINK_RU.toLowerCase()) != -1
+                || checkString.toLowerCase().indexOf(IBslCommentToken.LINK.toLowerCase()) != -1)
             {
-                String textMethod = node.getText();
                 int indexCheckChar = textMethod.indexOf(checkString);
                 int indexLinkText = checkString.indexOf(stringLink);
+                if (indexLinkText == -1 || indexCheckChar == -1 || indexLinkText == 0)
+                {
+                    return;
+                }
                 char checkChar = checkString.charAt(indexLinkText - 1);
                 char checkPrevChar = textMethod.charAt(indexCheckChar - 1);
                 if (!String.valueOf(checkChar).equals(" ") //$NON-NLS-1$
