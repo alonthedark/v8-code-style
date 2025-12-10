@@ -114,6 +114,10 @@ public class LinkPartSpaceCheck
                 if (!String.valueOf(checkChar).equals(" ") //$NON-NLS-1$
                     && !Character.isLetter(checkPrevChar))
                 {
+                    if (String.valueOf(checkChar).equals("\t")) //$NON-NLS-1$
+                    {
+                        return;
+                    }
                     if (stringLink.equals(":") || stringLink.equals("_")) //$NON-NLS-1$ //$NON-NLS-2$
                     {
                         resultAceptor.addIssue(Messages.LinkPartSpaceCheck_issueColon, linkPart.getLineNumber(),

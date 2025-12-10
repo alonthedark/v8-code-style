@@ -32,31 +32,9 @@ import com.e1c.v8codestyle.bsl.comment.check.LinkPartSpaceCheck;
 public class LinkPartSpaceCheckTest
     extends AbstractSingleModuleTestBase
 {
-    private static final String PROJECT_NAME = "EventHandlerBooleanParam";
-
-    private static final String MODULE_FILE_NAME = "/src/Catalogs/Products/ManagerModule.bsl";
-
     public LinkPartSpaceCheckTest()
     {
         super(LinkPartSpaceCheck.class);
-    }
-
-    @Override
-    protected boolean enableCleanUp()
-    {
-        return true;
-    }
-
-    @Override
-    protected String getTestConfigurationName()
-    {
-        return PROJECT_NAME;
-    }
-
-    @Override
-    protected String getModuleFileName()
-    {
-        return MODULE_FILE_NAME;
     }
 
     /**
@@ -180,6 +158,20 @@ public class LinkPartSpaceCheckTest
     public void testCorrectLink() throws Exception
     {
         updateModule(FOLDER_RESOURCE + "space-non-missing-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertTrue(markers.isEmpty());
+    }
+
+    /**
+     * Test correct link with tab.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testCorrectLinkWithTab() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-non-missing-tab-link-part.bsl");
 
         List<Marker> markers = getModuleMarkers();
         assertTrue(markers.isEmpty());
