@@ -73,7 +73,7 @@ public class LinkPartSpaceFix
             if (!Character.isLetter(checkChar))
             {
                 String nextChar = String.valueOf(editText.charAt(issueOffset + 2));
-                if (nextChar.equals(" ")) //$NON-NLS-1$
+                if (nextChar.equals(" ") || nextChar.equals("\t")) //$NON-NLS-1$ //$NON-NLS-2$
                 {
                     return new DeleteEdit(issueOffset + 1, 1);
                 }
