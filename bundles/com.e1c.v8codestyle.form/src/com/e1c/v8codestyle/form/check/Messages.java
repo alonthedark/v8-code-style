@@ -27,6 +27,9 @@ final class Messages
     public static String DataCompositionConditionalAppearanceUseCheck_Form;
     public static String DataCompositionConditionalAppearanceUseCheck_Form_attribute;
     public static String DataCompositionConditionalAppearanceUseCheck_title;
+    public static String DataCompositionNameVariantDefault_description;
+    public static String DataCompositionNameVariantDefault_issue;
+    public static String DataCompositionNameVariantDefault_title;
     public static String DynamicListItemTitleCheck_Description;
     public static String DynamicListItemTitleCheck_message;
     public static String DynamicListItemTitleCheck_title;
