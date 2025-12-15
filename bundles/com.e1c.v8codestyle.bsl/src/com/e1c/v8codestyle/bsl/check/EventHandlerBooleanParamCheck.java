@@ -145,7 +145,7 @@ public class EventHandlerBooleanParamCheck
         boolean checkEventOnly = parameters.getBoolean(PARAM_CHECK_EVENT_ONLY);
         for (Method method : module.allMethods())
         {
-            Pair<Event, Integer> eventWithParamIndex =
+            Pair<Event, Integer> eventWithShiftParamIndex =
                 getActualEvent(eventHandlersMod, eventHandlersContainerMod, eventHandlers, module, method);
             if (eventWithParamIndex.first == null && checkEventOnly)
             {
