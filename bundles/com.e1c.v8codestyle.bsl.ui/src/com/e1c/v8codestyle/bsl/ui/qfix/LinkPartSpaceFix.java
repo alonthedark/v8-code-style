@@ -12,17 +12,16 @@
  *******************************************************************************/
 package com.e1c.v8codestyle.bsl.ui.qfix;
 
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.nodemodel.INode;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.resource.XtextResource;
 
-import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.Module;
 import com.e1c.g5.v8.dt.bsl.check.qfix.IXtextBslModuleFixModel;
 import com.e1c.g5.v8.dt.bsl.check.qfix.SingleVariantXtextBslModuleFix;
@@ -50,49 +49,34 @@ public class LinkPartSpaceFix
     protected TextEdit fixIssue(XtextResource state, IXtextBslModuleFixModel model) throws BadLocationException
     {
         int issueOffset = model.getIssue().getOffset();
-        Method method = (Method)model.getElement();
-        EObject eObject = getModule(method);
-        while (!(eObject instanceof Module))
+        Module module = EcoreUtil2.getContainerOfType(model.getElement(), Module.class);
+        INode moduleNode = NodeModelUtils.findActualNodeFor(module);
+        if (moduleNode == null)
         {
-            eObject = getModule(eObject);
+            return null;
         }
-        if (eObject instanceof Module)
+        String editText = moduleNode.getText();
+        if (editText.length() < issueOffset + 1)
         {
-            INode node = NodeModelUtils.findActualNodeFor(eObject);
-            if (node == null)
-            {
-                return null;
-            }
-            String editText = node.getText();
-            if (editText.length() < issueOffset + 1)
-            {
-                return null;
-            }
-            char checkChar = editText.charAt(issueOffset + 1);
+            return null;
+        }
+        char checkChar = editText.charAt(issueOffset + 1);
 
-            if (!Character.isLetter(checkChar))
+        if (!Character.isLetter(checkChar))
+        {
+            String nextChar = String.valueOf(editText.charAt(issueOffset + 2));
+            if (nextChar.equals(" ") || nextChar.equals("\t")) //$NON-NLS-1$ //$NON-NLS-2$
             {
-                String nextChar = String.valueOf(editText.charAt(issueOffset + 2));
-                if (nextChar.equals(" ") || nextChar.equals("\t")) //$NON-NLS-1$ //$NON-NLS-2$
-                {
-                    return new DeleteEdit(issueOffset + 1, 1);
-                }
-                else
-                {
-                    return new ReplaceEdit(issueOffset + 1, 1, " "); //$NON-NLS-1$
-                }
+                return new DeleteEdit(issueOffset + 1, 1);
             }
             else
             {
-                return new InsertEdit(issueOffset + 1, " "); //$NON-NLS-1$
+                return new ReplaceEdit(issueOffset + 1, 1, " "); //$NON-NLS-1$
             }
         }
-        return null;
-    }
-
-    private EObject getModule(EObject eObject)
-    {
-        EObject nextContainer = eObject.eContainer();
-        return nextContainer;
+        else
+        {
+            return new InsertEdit(issueOffset + 1, " "); //$NON-NLS-1$
+        }
     }
 }
