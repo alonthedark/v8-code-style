@@ -54,6 +54,22 @@ public class LinkPartSpaceCheckTest
     }
 
     /**
+     * Test incorrect link.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-missing-link-part-ru.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
      * Test incorrect link with underscore.
      *
      * @throws Exception the exception
@@ -62,6 +78,22 @@ public class LinkPartSpaceCheckTest
     public void testIncorrectLinkWithUnderscore() throws Exception
     {
         updateModule(FOLDER_RESOURCE + "extra-underscore-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test incorrect link with underscore.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkWithUnderscoreRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "extra-underscore-link-part-ru.bsl");
 
         List<Marker> markers = getModuleMarkers();
         assertEquals(1, markers.size());
@@ -86,6 +118,22 @@ public class LinkPartSpaceCheckTest
     }
 
     /**
+     * Test incorrect link with colon before.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkWithColonBeforeUnderscoreRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "extra-colon-before-underscore-link-part-ru.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
      * Test incorrect link with colon.
      *
      * @throws Exception the exception
@@ -94,6 +142,22 @@ public class LinkPartSpaceCheckTest
     public void testIncorrectLinkWithColon() throws Exception
     {
         updateModule(FOLDER_RESOURCE + "extra-colon-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test incorrect link with colon.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkWithColonRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "extra-colon-link-part-ru.bsl");
 
         List<Marker> markers = getModuleMarkers();
         assertEquals(1, markers.size());
@@ -118,6 +182,22 @@ public class LinkPartSpaceCheckTest
     }
 
     /**
+     * Test incorrect link with colon before space.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testIncorrectLinkWithColonBeforeSpaceRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "extra-colon-link-part-ru.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
      * Test incorrect link after another link.
      *
      * @throws Exception the exception
@@ -126,6 +206,22 @@ public class LinkPartSpaceCheckTest
     public void testLinkAfter() throws Exception
     {
         updateModule(FOLDER_RESOURCE + "space-missing-link-part-after.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(4), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
+     * Test incorrect link after another link.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testLinkAfterRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-missing-link-part-after-ru.bsl");
 
         List<Marker> markers = getModuleMarkers();
         assertEquals(1, markers.size());
@@ -150,6 +246,22 @@ public class LinkPartSpaceCheckTest
     }
 
     /**
+     * Test incorrect link before another link
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testLinkBeforeRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-missing-link-part-before-ru.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(3), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
+    }
+
+    /**
      * Test correct link.
      *
      * @throws Exception the exception
@@ -164,6 +276,20 @@ public class LinkPartSpaceCheckTest
     }
 
     /**
+     * Test correct link.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testCorrectLinkRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-non-missing-link-part-ru.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertTrue(markers.isEmpty());
+    }
+
+    /**
      * Test correct link with tab.
      *
      * @throws Exception the exception
@@ -172,6 +298,20 @@ public class LinkPartSpaceCheckTest
     public void testCorrectLinkWithTab() throws Exception
     {
         updateModule(FOLDER_RESOURCE + "space-non-missing-tab-link-part.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertTrue(markers.isEmpty());
+    }
+
+    /**
+     * Test correct link with tab.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testCorrectLinkWithTabRu() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "space-non-missing-tab-link-part-ru.bsl");
 
         List<Marker> markers = getModuleMarkers();
         assertTrue(markers.isEmpty());

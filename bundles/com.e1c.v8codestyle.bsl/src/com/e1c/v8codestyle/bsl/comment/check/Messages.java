@@ -76,7 +76,6 @@ final class Messages
     public static String LinkPartSpaceCheck_description;
     public static String LinkPartSpaceCheck_issue;
     public static String LinkPartSpaceCheck_title;
-    public static String LinkPartSpaceCheck_issueColon;
     public static String TypeDefinitionCheck_description;
     public static String TypeDefinitionCheck_title;
     public static String TypeDefinitionCheck_Unkown_type_M_specified;

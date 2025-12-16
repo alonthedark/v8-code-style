@@ -94,15 +94,15 @@ public class LinkPartSpaceCheck
             String checkString = linkPart.getInitialContent();
             String stringLink = linkPart.getLinkText();
             Method method = root.getMethod();
-            INode node = NodeModelUtils.findActualNodeFor(method);
-            if (node == null)
-            {
-                return;
-            }
-            String textMethod = node.getText();
             if (checkString.toLowerCase().indexOf(IBslCommentToken.LINK_RU.toLowerCase()) != -1
                 || checkString.toLowerCase().indexOf(IBslCommentToken.LINK.toLowerCase()) != -1)
             {
+                INode node = NodeModelUtils.findActualNodeFor(method);
+                if (node == null)
+                {
+                    return;
+                }
+                String textMethod = node.getText();
                 int indexCheckChar = textMethod.indexOf(checkString);
                 int indexLinkText = checkString.indexOf(stringLink);
                 if (indexLinkText == -1 || indexCheckChar == -1 || indexLinkText == 0)
@@ -118,16 +118,8 @@ public class LinkPartSpaceCheck
                     {
                         return;
                     }
-                    if (stringLink.equals(":") || stringLink.equals("_")) //$NON-NLS-1$ //$NON-NLS-2$
-                    {
-                        resultAceptor.addIssue(Messages.LinkPartSpaceCheck_issueColon, linkPart.getLineNumber(),
-                            linkPart.getLinkTextOffset() - 1, 2);
-                    }
-                    else
-                    {
-                        resultAceptor.addIssue(Messages.LinkPartSpaceCheck_issue, linkPart.getLineNumber(),
-                            linkPart.getLinkTextOffset() - 1, 2);
-                    }
+                    resultAceptor.addIssue(Messages.LinkPartSpaceCheck_issue, linkPart.getLineNumber(),
+                        linkPart.getLinkTextOffset() - 1, 2);
                 }
             }
         }
