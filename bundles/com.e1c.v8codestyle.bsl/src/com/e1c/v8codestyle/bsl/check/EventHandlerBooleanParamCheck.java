@@ -147,7 +147,7 @@ public class EventHandlerBooleanParamCheck
         {
             Pair<Event, Integer> eventWithShiftParamIndex =
                 getActualEvent(eventHandlersMod, eventHandlersContainerMod, eventHandlers, module, method);
-            if (eventWithParamIndex.first == null && checkEventOnly)
+            if (eventWithShiftParamIndex.first == null && checkEventOnly)
             {
                 continue;
             }
@@ -165,11 +165,11 @@ public class EventHandlerBooleanParamCheck
                 else if (statement instanceof SimpleStatement)
                 {
                     checkSimpleStatement(statement, resultAceptor, parameters, monitor, module, method,
-                        eventWithParamIndex);
+                        eventWithShiftParamIndex);
                 }
                 else if (statement instanceof Statement)
                 {
-                    checkStatement(statement, resultAceptor, parameters, monitor, module, method, eventWithParamIndex);
+                    checkStatement(statement, resultAceptor, parameters, monitor, module, method, eventWithShiftParamIndex);
                 }
             }
         }
@@ -475,5 +475,4 @@ public class EventHandlerBooleanParamCheck
         ModuleType type = module.getModuleType();
         return type == ModuleType.FORM_MODULE || type == ModuleType.COMMON_MODULE;
     }
-
 }
