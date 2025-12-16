@@ -104,7 +104,7 @@ import com.e1c.g5.v8.dt.check.settings.IssueType;
  *
  */
 public abstract class RoleRightSetCheck
-    extends BasicCheck
+    extends BasicCheck<Object>
 {
 
     protected static final String EXCLUDE_OBJECT_NAME_PATTERN_PARAMETER_NAME = "excludeObjectNamePattern"; //$NON-NLS-1$
@@ -445,8 +445,7 @@ public abstract class RoleRightSetCheck
         return rightNames.contains(getRightName().getName());
     }
 
-    private boolean skipCheck(MdObject mdObject, IV8Project v8Project, Role role,
-        ObjectRights objectRights)
+    private boolean skipCheck(MdObject mdObject, IV8Project v8Project, Role role, ObjectRights objectRights)
     {
         // Role always 'Allow all except... ' (role.isSetForNewObjects() == true)
         if (v8Project instanceof IExtensionProject extensionProject)
@@ -456,41 +455,40 @@ public abstract class RoleRightSetCheck
             {
                 return true;
             }
-    
+
             Configuration extensionConfiguration = extensionProject.getConfiguration();
-            Set<Role> defaultRoles = Set.copyOf(extensionConfiguration.getDefaultRoles());
+            List<Role> defaultRoles = extensionConfiguration.getDefaultRoles();
             boolean isAdoptedObject = RightsModelUtil.isAdoptedMdObject(mdObject);
-    
+
             // Default native extension role cannot contain adopted object rights.
             if (role.getObjectBelonging() == ObjectBelonging.NATIVE && defaultRoles.contains(role) && isAdoptedObject)
             {
                 return true;
             }
-    
+
             RightValue rightValue = null;
             if (objectRights != null)
             {
                 rightValue = objectRights.getRights()
                     .stream()
                     .filter(Objects::nonNull)
-                    .filter(objectRight -> getRightName().getName().equals(objectRight.getRight().getName())
-                        || getRightName().getNameRu().equals(objectRight.getRight().getNameRu()))
+                    .filter(objectRight -> getRightName().getName().equals(objectRight.getRight().getName()))
                     .findFirst()
                     .map(ObjectRight::getValue)
                     .orElse(null);
             }
-    
+
             if (rightValue == null)
             {
                 rightValue = RightsModelUtil.getDefaultRightValue(mdObject, role);
             }
-    
+
             if (!RightsModelUtil.getBooleanRightValue(rightValue))
             {
                 return true;
             }
         }
-    
+
         return false;
     }
 
