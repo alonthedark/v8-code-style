@@ -24,7 +24,7 @@ import com.e1c.g5.v8.dt.testing.check.CheckTestBase;
 import com.e1c.v8codestyle.form.check.DataCompositionNameVariantDefaultCheck;
 
 /**
- * Test {@link DataCompositionNameVariantDefaultCheck} class that checks that selection query has join with some sub query.
+ * Test {@link DataCompositionNameVariantDefaultCheck} data coposition schema variant name.
  *
  * @author Ivan Sergeev
  */
