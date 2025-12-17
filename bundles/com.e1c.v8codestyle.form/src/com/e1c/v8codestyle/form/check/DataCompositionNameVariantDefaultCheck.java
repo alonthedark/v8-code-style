@@ -17,11 +17,10 @@ import static com._1c.g5.v8.dt.dcs.model.schema.DcsPackage.Literals.DATA_COMPOSI
 import static com._1c.g5.v8.dt.dcs.model.schema.DcsPackage.Literals.DATA_COMPOSITION_SCHEMA__SETTINGS_VARIANTS;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.emf.common.util.BasicEMap;
-import org.eclipse.emf.common.util.BasicEMap.Entry;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.common.util.EMap;
 
+import com._1c.g5.v8.dt.dcs.model.core.Presentation;
 import com._1c.g5.v8.dt.dcs.model.schema.DataCompositionSchema;
 import com._1c.g5.v8.dt.dcs.model.settings.SettingsVariant;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
@@ -34,14 +33,19 @@ import com.e1c.v8codestyle.internal.form.CorePlugin;
 import com.google.inject.Inject;
 
 /**
- * The check report data composition schema name variant.
- * @author Ivan Sergeev
+ * The check find form or form attributes, that use conditional appearance.
+ * @author Vadim Goncharov
  */
 public class DataCompositionNameVariantDefaultCheck
-    extends BasicCheck
+    extends BasicCheck<Object>
 {
     private static final String CHECK_ID = "data-composition-variant-name-default"; //$NON-NLS-1$
 
+    /**
+     * Instantiates a new dynamic list conditional appearance use check.
+     *
+     * @param bmModelManager the BmModelManager
+     */
     @Inject
     public DataCompositionNameVariantDefaultCheck()
     {
@@ -71,7 +75,9 @@ public class DataCompositionNameVariantDefaultCheck
     protected void check(Object object, ResultAcceptor resultAcceptor, ICheckParameters parameters,
         IProgressMonitor monitor)
     {
+
         DataCompositionSchema dcs = (DataCompositionSchema)object;
+
         EList<SettingsVariant> variants = dcs.getSettingsVariants();
         if (variants == null)
         {
@@ -80,46 +86,36 @@ public class DataCompositionNameVariantDefaultCheck
         for (SettingsVariant settingsVariant : variants)
         {
             String name = settingsVariant.getName();
-            EList<EObject> presentations = settingsVariant.getPresentation().eContents().get(0).eContents();
-            if (name.equalsIgnoreCase("Default") || name.equalsIgnoreCase("Основной")) //$NON-NLS-1$ //$NON-NLS-2$
+            Presentation presentation = settingsVariant.getPresentation();
+            EMap<String, String> presentationValue = presentation.getLocalValue().getContent();
+            if (name.equalsIgnoreCase("Основной") || name.equalsIgnoreCase("Default")) //$NON-NLS-1$ //$NON-NLS-2$
             {
-                if (presentations.isEmpty())
+                if (presentationValue.isEmpty())
                 {
-                    resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_issue);
+                    resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_Issue);
                     continue;
                 }
-                else
+                String presentationName = presentationValue.get(0).getValue();
+                if (presentationName.equalsIgnoreCase("Основной") || presentationName.equalsIgnoreCase("Default")) //$NON-NLS-1$//$NON-NLS-2$
                 {
-                    checkPresentation(presentations, resultAcceptor);
+                    resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_Issue);
                 }
             }
             else
             {
-                if (presentations.isEmpty())
+                if (presentationValue.isEmpty())
                 {
                     continue;
                 }
                 else
                 {
-                    checkPresentation(presentations, resultAcceptor);
+                    String presentationName = presentationValue.get(0).getValue();
+                    if (presentationName.equalsIgnoreCase("Основной") || presentationName.equalsIgnoreCase("Default")) //$NON-NLS-1$//$NON-NLS-2$
+                    {
+                        resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_Issue);
+                    }
                 }
             }
-        }
-    }
-
-    private void checkPresentation(EList<EObject> presentations, ResultAcceptor resultAcceptor)
-    {
-        EObject eObject = presentations.get(0);
-        if (!(eObject instanceof com._1c.g5.v8.bm.core.BmObject))
-        {
-            return;
-        }
-        @SuppressWarnings("unchecked")
-        BasicEMap.Entry<String, String> map = (Entry<String, String>)eObject;
-        String presentationName = map.getValue();
-        if (presentationName.equalsIgnoreCase("Default") || presentationName.equalsIgnoreCase("Основной")) //$NON-NLS-1$//$NON-NLS-2$
-        {
-            resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_issue);
         }
     }
 }
