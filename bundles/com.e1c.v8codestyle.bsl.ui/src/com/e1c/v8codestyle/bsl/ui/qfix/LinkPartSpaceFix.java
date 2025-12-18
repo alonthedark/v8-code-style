@@ -56,7 +56,8 @@ public class LinkPartSpaceFix
             return null;
         }
         String editText = moduleNode.getText();
-        if (editText.length() < issueOffset + 1)
+        int textLenght = editText.length();
+        if (textLenght < issueOffset + 1)
         {
             return null;
         }
@@ -64,6 +65,10 @@ public class LinkPartSpaceFix
 
         if (!Character.isLetter(checkChar))
         {
+            if (textLenght < issueOffset + 2)
+            {
+                return null;
+            }
             String nextChar = String.valueOf(editText.charAt(issueOffset + 2));
             if (nextChar.equals(" ") || nextChar.equals("\t")) //$NON-NLS-1$ //$NON-NLS-2$
             {
