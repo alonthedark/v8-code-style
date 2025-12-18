@@ -33,19 +33,14 @@ import com.e1c.v8codestyle.internal.form.CorePlugin;
 import com.google.inject.Inject;
 
 /**
- * The check find form or form attributes, that use conditional appearance.
- * @author Vadim Goncharov
+ * Check data coposition schema variant name.
+ * @author Ivan Sergeev
  */
 public class DataCompositionNameVariantDefaultCheck
     extends BasicCheck<Object>
 {
     private static final String CHECK_ID = "data-composition-variant-name-default"; //$NON-NLS-1$
 
-    /**
-     * Instantiates a new dynamic list conditional appearance use check.
-     *
-     * @param bmModelManager the BmModelManager
-     */
     @Inject
     public DataCompositionNameVariantDefaultCheck()
     {
@@ -61,8 +56,8 @@ public class DataCompositionNameVariantDefaultCheck
     @Override
     protected void configureCheck(CheckConfigurer builder)
     {
-        builder.title(Messages.DataCompositionNameVariantDefault_title)
-            .description(Messages.DataCompositionNameVariantDefault_description)
+        builder.title(Messages.DataCompositionNameVariantDefault_Title)
+            .description(Messages.DataCompositionNameVariantDefault_Description)
             .complexity(CheckComplexity.NORMAL)
             .severity(IssueSeverity.MINOR)
             .issueType(IssueType.UI_STYLE)
