@@ -62,6 +62,9 @@ final class Messages
     public static String SelfAssignFix_Description;
     public static String SelfAssignFix_Details;
 
+    public static String LinkPartSpaceFix_Description;
+    public static String LinkPartSpaceFix_Details;
+
     static
     {
         // initialize resource bundle
