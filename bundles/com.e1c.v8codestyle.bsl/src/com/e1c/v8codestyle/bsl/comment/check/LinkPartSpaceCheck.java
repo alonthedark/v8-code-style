@@ -73,8 +73,8 @@ public class LinkPartSpaceCheck
     @Override
     protected void configureCheck(CheckConfigurer builder)
     {
-        builder.title(Messages.LinkPartSpaceCheck_title)
-            .description(Messages.LinkPartSpaceCheck_description)
+        builder.title(Messages.LinkPartSpaceCheck_Title)
+            .description(Messages.LinkPartSpaceCheck_Description)
             .complexity(CheckComplexity.NORMAL)
             .severity(IssueSeverity.MINOR)
             .issueType(IssueType.CODE_STYLE)
@@ -118,7 +118,7 @@ public class LinkPartSpaceCheck
                     {
                         return;
                     }
-                    resultAceptor.addIssue(Messages.LinkPartSpaceCheck_issue, linkPart.getLineNumber(),
+                    resultAceptor.addIssue(Messages.LinkPartSpaceCheck_Issue, linkPart.getLineNumber(),
                         linkPart.getLinkTextOffset() - 1, 2);
                 }
             }
