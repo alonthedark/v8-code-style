@@ -47,7 +47,7 @@ final class Messages
     public static String MethodSemicolonExtraFix_Details;
     public static String MethodSemicolonExtraFix_Description;
 
-    public static String SemicolonMissngFix_Details;
+    public static String SemicolonMissingFix_Details;
     public static String SemicolonMissingFix_Description;
 
     public static String SelfReferenceFix_description;

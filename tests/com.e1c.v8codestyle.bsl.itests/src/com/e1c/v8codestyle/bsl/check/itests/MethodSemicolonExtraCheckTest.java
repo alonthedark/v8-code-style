@@ -24,7 +24,7 @@ import com._1c.g5.v8.dt.validation.marker.StandardExtraInfo;
 import com.e1c.v8codestyle.bsl.check.MethodSemicolonExtraCheck;
 
 /**
- * Tests for {@link MerhodSemicolonExtraCheck} check.
+ * Tests for {@link MethodSemicolonExtraCheck} check.
  *
  * @author Ivan Sergeev
  */
@@ -38,7 +38,7 @@ public class MethodSemicolonExtraCheckTest
     }
 
     /**
-     * Test method declaration contain extra semicolon.
+     * Test method declaration contains extra semicolon.
      *
      * @throws Exception the exception
      */
@@ -86,7 +86,7 @@ public class MethodSemicolonExtraCheckTest
     }
 
     /**
-     * Test method declaration not contain extra semicolon.
+     * Test method declaration does not contain extra semicolon.
      *
      * @throws Exception the exception
      */

@@ -101,7 +101,6 @@ public class SemicolonMissingCheckTest
         assertEquals(Integer.valueOf(9), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
     }
 
-
     /**
      * Test statement before another statement.
      *

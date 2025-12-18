@@ -27,7 +27,7 @@ import com.e1c.g5.v8.dt.bsl.check.qfix.SingleVariantXtextBslModuleFix;
 import com.e1c.g5.v8.dt.check.qfix.components.QuickFix;
 
 /**
- * Add missing semicolon
+ * Adds missing semicolon
  *
  *  @author Ivan Sergeev
  */
@@ -41,14 +41,14 @@ public class SemicolonMissingFix
     {
         configurer.interactive(true)
             .description(Messages.SemicolonMissingFix_Description)
-            .details(Messages.SemicolonMissngFix_Details);
+            .details(Messages.SemicolonMissingFix_Details);
     }
 
     @Override
     protected TextEdit fixIssue(XtextResource state, IXtextBslModuleFixModel model) throws BadLocationException
     {
         EObject eobject = model.getElement();
-        if (!(eobject instanceof Statement) & !(eobject instanceof Conditional))
+        if (!(eobject instanceof Statement) && !(eobject instanceof Conditional))
         {
             return null;
         }

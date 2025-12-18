@@ -40,7 +40,7 @@ public class MethodSemicolonExtraFix
     {
         configurer.interactive(true)
             .description(Messages.MethodSemicolonExtraFix_Description)
-            .details(Messages.MethodSemicolonExtraFix_Description);
+            .details(Messages.MethodSemicolonExtraFix_Details);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class MethodSemicolonExtraFix
         {
             return new DeleteEdit(checkNode.getTotalOffset(), checkNode.getTotalLength());
         }
-        else if (checkNextNode.getText().contains(";") && !(checkNextNode == null)) //$NON-NLS-1$
+        else if (checkNextNode != null && checkNextNode.getText().contains(";")) //$NON-NLS-1$
         {
             return new DeleteEdit(checkNextNode.getTotalOffset(), checkNextNode.getTotalLength());
         }

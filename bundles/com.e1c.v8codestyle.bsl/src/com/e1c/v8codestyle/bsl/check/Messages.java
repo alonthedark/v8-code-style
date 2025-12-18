@@ -289,10 +289,16 @@ final class Messages
     public static String QueryInLoop_Loop_has_query;
     public static String QueryInLoop_title;
 
+    public static String SelfAssignCheck_Title;
+
+    public static String SelfAssignCheck_Description;
+
+    public static String SelfAssignCheck_Self_assign_issue;
+
     public static String SemicolonMissingCheck_Description;
-    
+
     public static String SemicolonMissingCheck_Title;
-    
+
     public static String SemicolonMissingCheck_Issue;
 
     public static String SelfReferenceCheck_check_object_module;
@@ -401,9 +407,9 @@ final class Messages
     public static String MethodTooManyPramsCheck_title;
 
     public static String MethodSemicolonExtraCheck_Description;
-    
+
     public static String MethodSemicolonExtraCheck_Title;
-    
+
     public static String MethodSemicolonExtraCheck_Issue;
 
     public static String MissingTemporaryFileDeletionCheck_Delete_File_Methods;
@@ -465,7 +471,7 @@ final class Messages
     public static String IsInRoleMethodRoleExistCheck_Role_named_not_exists_in_configuration;
 
     public static String IsInRoleMethodRoleExistCheck_title;
-    
+
     public static String ModuleUndefinedVariableCheck_Title;
     public static String ModuleUndefinedVariableCheck_Description;
     public static String ModuleUndefinedVariable_msg;
