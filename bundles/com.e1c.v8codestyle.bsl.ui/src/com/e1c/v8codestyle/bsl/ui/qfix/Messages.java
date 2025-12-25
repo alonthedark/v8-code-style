@@ -32,6 +32,10 @@ final class Messages
 
     public static String CommonModuleNamedSelfReferenceFix_details;
 
+    public static String ExtensionMethodVisibleModeFix_Description;
+
+    public static String ExtensionMethodVisibleModeFix_Details;
+
     public static String FormSelfReferenceOutdatedFix_description;
 
     public static String FormSelfReferenceOutdatedFix_details;
