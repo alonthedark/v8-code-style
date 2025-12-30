@@ -198,6 +198,10 @@
       </check>
       <check
             category="com.e1c.v8codestyle.bsl.comment"
+            class="com.e1c.v8codestyle.internal.bsl.ExecutableExtensionFactory:com.e1c.v8codestyle.bsl.comment.check.LinkPartSpaceCheck">
+      </check>
+      <check
+            category="com.e1c.v8codestyle.bsl.comment"
             class="com.e1c.v8codestyle.internal.bsl.ExecutableExtensionFactory:com.e1c.v8codestyle.bsl.comment.check.TypeDefinitionCheck">
       </check>
       <check
