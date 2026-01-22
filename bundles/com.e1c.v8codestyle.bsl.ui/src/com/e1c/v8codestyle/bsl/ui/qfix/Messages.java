@@ -48,6 +48,10 @@ final class Messages
 
     public static String SelfReferenceFix_details;
 
+    public static String DontUseModalityModeFix_Details;
+
+    public static String DontUseModalityModeFix_Description;
+
     public static String ServerExecutionSafeModeFix_description;
 
     public static String ServerExecutionSafeModeFix_details;
