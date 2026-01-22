@@ -30,6 +30,8 @@ import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.Pragma;
 import com._1c.g5.v8.dt.core.platform.IV8Project;
 import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
+import com._1c.g5.v8.dt.metadata.mdclass.ModalityUseMode;
+import com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant;
 import com.e1c.g5.v8.dt.bsl.check.qfix.IXtextBslModuleFixModel;
 import com.e1c.g5.v8.dt.bsl.check.qfix.SingleVariantXtextBslModuleFix;
 import com.e1c.g5.v8.dt.check.qfix.components.QuickFix;
@@ -47,7 +49,6 @@ public class ExtensionMethodVisibleModeFix
 
     private final IV8ProjectManager v8ProjectManager;
 
-    private String ruLang = "Russian"; //$NON-NLS-1$
     private String ifSting = "#If"; //$NON-NLS-1$
     private String ifStingRu = "#Если"; //$NON-NLS-1$
     private String thenString = "Then"; //$NON-NLS-1$
@@ -84,7 +85,8 @@ public class ExtensionMethodVisibleModeFix
         }
         String sourceText = node.getText();
         IV8Project baseProject = v8ProjectManager.getProject(sourceMethod);
-        String languageCode = baseProject.getScriptVariant().getName();
+        ModalityUseMode.values();
+        ScriptVariant languageCode = baseProject.getScriptVariant();
         String visibleModeText = getVisibleModeText(sourceText, languageCode);
         if (visibleModeText == null)
         {
@@ -104,8 +106,9 @@ public class ExtensionMethodVisibleModeFix
         return new ReplaceEdit(0, methodText.length(), replaceMethodText);
     }
 
-    private String getVisibleModeText(String sourceText, String languageCode)
+    private String getVisibleModeText(String sourceText, ScriptVariant languageCode)
     {
+
         int indexVisibleText = startVisibleTextIndex(sourceText, languageCode);
         int indexEndVisibleText = endVisibleTextIndex(sourceText, languageCode);
         if (indexVisibleText == -1 || indexEndVisibleText == -1)
@@ -115,10 +118,10 @@ public class ExtensionMethodVisibleModeFix
         return sourceText.substring(indexVisibleText, indexEndVisibleText);
     }
 
-    private String newMethodText(String methodText, String visibleModeText, String languageCode)
+    private String newMethodText(String methodText, String visibleModeText, ScriptVariant languageCode)
     {
         StringBuilder sb = new StringBuilder(methodText);
-        if (languageCode.equalsIgnoreCase(ruLang))
+        if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
         {
             String insertString = ifStingRu + visibleModeText + thenStringRu;
             sb.insert(0, insertString);
@@ -134,9 +137,9 @@ public class ExtensionMethodVisibleModeFix
 
     }
 
-    private int startVisibleTextIndex(String sourceText, String languageCode)
+    private int startVisibleTextIndex(String sourceText, ScriptVariant languageCode)
     {
-        if (languageCode.equalsIgnoreCase(ruLang))
+        if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
         {
             return sourceText.toLowerCase().indexOf(ifStingRu.toLowerCase()) + 5;
         }
@@ -146,9 +149,9 @@ public class ExtensionMethodVisibleModeFix
         }
     }
 
-    private int endVisibleTextIndex(String sourceText, String languageCode)
+    private int endVisibleTextIndex(String sourceText, ScriptVariant languageCode)
     {
-        if (languageCode.equalsIgnoreCase(ruLang))
+        if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
         {
             return sourceText.toLowerCase().indexOf(thenStringRu.toLowerCase());
         }
