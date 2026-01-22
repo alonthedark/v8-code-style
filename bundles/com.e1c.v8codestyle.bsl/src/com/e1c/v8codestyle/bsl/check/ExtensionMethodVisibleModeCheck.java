@@ -12,12 +12,10 @@
  *******************************************************************************/
 package com.e1c.v8codestyle.bsl.check;
 
-import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.METHOD;
+import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.MODULE;
 import static com._1c.g5.v8.dt.mcore.McorePackage.Literals.NAMED_ELEMENT__NAME;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,6 +25,7 @@ import org.eclipse.xtext.EcoreUtil2;
 import com._1c.g5.v8.dt.bsl.common.IModuleExtensionService;
 import com._1c.g5.v8.dt.bsl.common.IModuleExtensionServiceProvider;
 import com._1c.g5.v8.dt.bsl.model.Method;
+import com._1c.g5.v8.dt.bsl.model.Module;
 import com._1c.g5.v8.dt.bsl.model.Pragma;
 import com._1c.g5.v8.dt.core.platform.IExtensionProject;
 import com._1c.g5.v8.dt.core.platform.IV8Project;
@@ -73,34 +72,29 @@ public class ExtensionMethodVisibleModeCheck
         builder.title(Messages.ExtensionMethodVisibleModeCheck_Title)
             .description(Messages.ExtensionMethodVisibleModeCheck_Description)
             .complexity(CheckComplexity.NORMAL)
-            .severity(IssueSeverity.CRITICAL)
+            .severity(IssueSeverity.MAJOR)
             .issueType(IssueType.CODE_STYLE)
             .extension(new ModuleTopObjectNameFilterExtension())
             .extension(new CommonSenseCheckExtension(getCheckId(), BslPlugin.PLUGIN_ID))
             .module()
-            .checkedObjectType(METHOD);
+            .checkedObjectType(MODULE);
     }
 
     @Override
     protected void check(Object object, ResultAcceptor resultAceptor, ICheckParameters parameters,
         IProgressMonitor monitor)
     {
-        Method method = (Method)object;
-        IV8Project extension = v8ProjectManager.getProject(method);
+        Module module = (Module)object;
+        IV8Project extension = v8ProjectManager.getProject(module);
         if (extension instanceof IExtensionProject)
         {
-            EList<Pragma> pragmas = method.getPragmas();
-            String[] pragmasSimbols = new String[] { "После", "Перед", "Вместо", "ИзменениеИКонтроль", "After", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
-                "Before", "Around", "ChangeAndValidate" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            List<String> pragmasList = Arrays.asList(pragmasSimbols);
-            for (Pragma pragma : pragmas)
+            EList<Method> methodsList = module.allMethods();
+            for (Method method : methodsList)
             {
-                String pragmaSimbol = pragma.getSymbol();
-                if (pragmasList.stream().anyMatch(str -> str.equalsIgnoreCase(pragmaSimbol)))
+                IModuleExtensionService service = IModuleExtensionServiceProvider.INSTANCE.getModuleExtensionService();
+                Map<Pragma, Method> pragmaSourceMethod = service.getSourceMethod(method);
+                if (!pragmaSourceMethod.isEmpty())
                 {
-                    IModuleExtensionService service =
-                        IModuleExtensionServiceProvider.INSTANCE.getModuleExtensionService();
-                    Map<Pragma, Method> pragmaSourceMethod = service.getSourceMethod(method);
                     Collection<Method> methods = pragmaSourceMethod.values();
                     Method sourceMethod = methods.iterator().next();
                     Environments extentionMethodEnv =
@@ -109,7 +103,8 @@ public class ExtensionMethodVisibleModeCheck
                         EcoreUtil2.getContainerOfType(sourceMethod, Environmental.class).environments();
                     if (!sourceMethodEnv.containsAll(extentionMethodEnv))
                     {
-                        resultAceptor.addIssue(Messages.ExtensionMethodVisibleModeCheck_Issue, NAMED_ELEMENT__NAME);
+                        resultAceptor.addIssue(Messages.ExtensionMethodVisibleModeCheck_Issue, method,
+                            NAMED_ELEMENT__NAME);
                     }
                 }
             }
