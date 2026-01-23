@@ -30,7 +30,6 @@ import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.Pragma;
 import com._1c.g5.v8.dt.core.platform.IV8Project;
 import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
-import com._1c.g5.v8.dt.metadata.mdclass.ModalityUseMode;
 import com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant;
 import com.e1c.g5.v8.dt.bsl.check.qfix.IXtextBslModuleFixModel;
 import com.e1c.g5.v8.dt.bsl.check.qfix.SingleVariantXtextBslModuleFix;
@@ -85,7 +84,6 @@ public class ExtensionMethodVisibleModeFix
         }
         String sourceText = node.getText();
         IV8Project baseProject = v8ProjectManager.getProject(sourceMethod);
-        ModalityUseMode.values();
         ScriptVariant languageCode = baseProject.getScriptVariant();
         String visibleModeText = getVisibleModeText(sourceText, languageCode);
         if (visibleModeText == null)
