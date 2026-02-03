@@ -97,11 +97,17 @@ public class ExtensionMethodVisibleModeFix
         }
         String methodText = nodeExtMethod.getText();
         String replaceMethodText = newMethodText(methodText, visibleModeText, languageCode);
+        ICompositeNode nodeModel = state.getParseResult().getRootNode();
+        if (nodeModel == null)
+        {
+            return null;
+        }
         if (replaceMethodText == null)
         {
             return null;
         }
-        return new ReplaceEdit(0, methodText.length(), replaceMethodText);
+        int indexStartMethod = nodeModel.getText().indexOf(methodText);
+        return new ReplaceEdit(indexStartMethod + 1, methodText.length() + 1, replaceMethodText);
     }
 
     private String getVisibleModeText(String sourceText, ScriptVariant languageCode)
@@ -123,13 +129,15 @@ public class ExtensionMethodVisibleModeFix
         {
             String insertString = ifStingRu + visibleModeText + thenStringRu;
             sb.insert(0, insertString);
-            sb.insert(methodText.length() + insertString.length(), System.lineSeparator() + "#КонецЕсли"); //$NON-NLS-1$
+            sb.insert(methodText.length() + insertString.length(),
+                System.lineSeparator() + "#КонецЕсли" + System.lineSeparator()); //$NON-NLS-1$
         }
         else
         {
             String insertString = ifSting + visibleModeText + thenString;
             sb.insert(0, insertString);
-            sb.insert(methodText.length() + insertString.length(), System.lineSeparator() + "#EndIf"); //$NON-NLS-1$
+            sb.insert(methodText.length() + insertString.length(),
+                System.lineSeparator() + "#EndIf" + System.lineSeparator()); //$NON-NLS-1$
         }
         return sb.toString();
 
