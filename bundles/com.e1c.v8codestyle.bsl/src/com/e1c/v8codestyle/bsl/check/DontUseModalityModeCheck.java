@@ -14,6 +14,8 @@ package com.e1c.v8codestyle.bsl.check;
 
 import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.INVOCATION;
 
+import java.util.Set;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.nodemodel.ICompositeNode;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
@@ -33,7 +35,6 @@ import com.e1c.g5.v8.dt.check.settings.IssueSeverity;
 import com.e1c.g5.v8.dt.check.settings.IssueType;
 import com.e1c.v8codestyle.check.CommonSenseCheckExtension;
 import com.e1c.v8codestyle.internal.bsl.BslPlugin;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 
 /**
@@ -46,38 +47,38 @@ public class DontUseModalityModeCheck
 {
     private static final String CHECK_ID = "dont-use-modality-mode"; //$NON-NLS-1$
 
-    private final IConfigurationProvider configurationProvider;
+    private static final Set<String> IMMUTABLE_MAP_CALL = Set.of("открытьзначение", //$NON-NLS-1$
+        "openvalue", //$NON-NLS-1$
+        "открытьформумодально", //$NON-NLS-1$
+        "openformmodal", //$NON-NLS-1$
+        "вопрос", //$NON-NLS-1$
+        "doquerybox", //$NON-NLS-1$
+        "предупреждение", //$NON-NLS-1$
+        "domessagebox", //$NON-NLS-1$
+        "выбратьизсписка", //$NON-NLS-1$
+        "choosefromlist", //$NON-NLS-1$
+        "ввестистроку", //$NON-NLS-1$
+        "inputstring", //$NON-NLS-1$
+        "ввестичисло", //$NON-NLS-1$
+        "inputnumber", //$NON-NLS-1$
+        "ввестидату", //$NON-NLS-1$
+        "inputdate", //$NON-NLS-1$
+        "открытьмодально", //$NON-NLS-1$
+        "domodal", //$NON-NLS-1$
+        "поместитьфайл", //$NON-NLS-1$
+        "putfile", //$NON-NLS-1$
+        "отметитьэлементы", //$NON-NLS-1$
+        "checkitems", //$NON-NLS-1$
+        "выбратьэлемент", //$NON-NLS-1$
+        "chooseitem", //$NON-NLS-1$
+        "установитьрасширениеработысфайлами", //$NON-NLS-1$
+        "installfilesystemextension", //$NON-NLS-1$
+        "установитьвнешнююкомпоненту", //$NON-NLS-1$
+        "installaddin", //$NON-NLS-1$
+        "выбратьизменю", //$NON-NLS-1$
+        "choosefrommenu"); //$NON-NLS-1$
 
-    private final ImmutableMap<Integer, String> immutableMapCall = ImmutableMap.<Integer, String> builder()
-        .put(1, "открытьзначение") //$NON-NLS-1$
-        .put(2, "openvalue") //$NON-NLS-1$
-        .put(3, "открытьформумодально") //$NON-NLS-1$
-        .put(4, "openformmodal")//$NON-NLS-1$
-        .put(5, "вопрос") //$NON-NLS-1$
-        .put(6, "doquerybox") //$NON-NLS-1$
-        .put(7, "предупреждение") //$NON-NLS-1$
-        .put(8, "Domessagebox") //$NON-NLS-1$
-        .put(9, "выбратьизсписка") //$NON-NLS-1$
-        .put(10, "choosefromlist") //$NON-NLS-1$
-        .put(11, "ввестистроку") //$NON-NLS-1$
-        .put(12, "inputstring") //$NON-NLS-1$
-        .put(13, "ввестичисло") //$NON-NLS-1$
-        .put(14, "inputnumber") //$NON-NLS-1$
-        .put(15, "ввестидату") //$NON-NLS-1$
-        .put(16, "inputdate") //$NON-NLS-1$
-        .put(17, "открытьмодально") //$NON-NLS-1$
-        .put(18, "domodal") //$NON-NLS-1$
-        .put(19, "поместитьфайл") //$NON-NLS-1$
-        .put(20, "putfile") //$NON-NLS-1$
-        .put(21, "отметитьэлементы") //$NON-NLS-1$
-        .put(22, "checkitems") //$NON-NLS-1$
-        .put(23, "выбратьэлемент") //$NON-NLS-1$
-        .put(24, "chooseitem") //$NON-NLS-1$
-        .put(25, "установитьрасширениеработысфайлами") //$NON-NLS-1$
-        .put(26, "installfilesystemextension") //$NON-NLS-1$
-        .put(27, "установитьвнешнююкомпоненту") //$NON-NLS-1$
-        .put(28, "installaddin") //$NON-NLS-1$
-        .build();
+    private final IConfigurationProvider configurationProvider;
 
     @Inject
     public DontUseModalityModeCheck(IConfigurationProvider configurationProvider)
@@ -117,7 +118,7 @@ public class DontUseModalityModeCheck
             FeatureAccess featureAccess = invocation.getMethodAccess();
             String name = featureAccess.getName();
 
-            if (immutableMapCall.containsValue(name.toLowerCase()))
+            if (IMMUTABLE_MAP_CALL.contains(name.toLowerCase()))
             {
                 ICompositeNode node = NodeModelUtils.findActualNodeFor(featureAccess);
                 DirectLocation directLocation =
