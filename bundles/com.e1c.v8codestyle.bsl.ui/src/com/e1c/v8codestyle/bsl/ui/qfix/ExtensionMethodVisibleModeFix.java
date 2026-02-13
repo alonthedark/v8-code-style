@@ -107,7 +107,8 @@ public class ExtensionMethodVisibleModeFix
             return null;
         }
         int indexStartMethod = nodeModel.getText().indexOf(methodText);
-        return new ReplaceEdit(indexStartMethod + 2, methodText.length(), replaceMethodText);
+        return new ReplaceEdit(indexStartMethod + System.lineSeparator().length(), methodText.length(),
+            replaceMethodText);
     }
 
     private String getVisibleModeText(String sourceText, ScriptVariant languageCode)
