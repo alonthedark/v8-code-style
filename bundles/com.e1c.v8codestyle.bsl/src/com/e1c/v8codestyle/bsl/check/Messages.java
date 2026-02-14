@@ -153,6 +153,12 @@ final class Messages
 
     public static String EventHandlerBooleanParamCheck_title;
 
+    public static String ExtensionMethodVisibleModeCheck_Description;
+
+    public static String ExtensionMethodVisibleModeCheck_Issue;
+
+    public static String ExtensionMethodVisibleModeCheck_Title;
+
     public static String ReadingAttributesFromDataBaseCheck_Message;
 
     public static String ReadingAttributesFromDataBaseCheck_Description;
