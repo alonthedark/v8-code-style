@@ -123,6 +123,12 @@ final class Messages
 
     public static String DeprecatedProcedureOutsideDeprecatedRegionCheck_title;
 
+    public static String DontUseModalityModeCheck_Issue;
+
+    public static String DontUseModalityModeCheck_Description;
+
+    public static String DontUseModalityModeCheck_Title;
+
     public static String EmptyExceptStatementCheck_description;
     public static String EmptyExceptStatementCheck_title;
 
@@ -146,6 +152,12 @@ final class Messages
     public static String EventHandlerBooleanParamCheck_Prams_to_set_to_True;
 
     public static String EventHandlerBooleanParamCheck_title;
+
+    public static String ExtensionMethodVisibleModeCheck_Description;
+
+    public static String ExtensionMethodVisibleModeCheck_Issue;
+
+    public static String ExtensionMethodVisibleModeCheck_Title;
 
     public static String ReadingAttributesFromDataBaseCheck_Message;
 
@@ -290,8 +302,16 @@ final class Messages
     public static String QueryInLoop_title;
 
     public static String SelfAssignCheck_Title;
+
     public static String SelfAssignCheck_Description;
+
     public static String SelfAssignCheck_Self_assign_issue;
+
+    public static String SemicolonMissingCheck_Description;
+
+    public static String SemicolonMissingCheck_Title;
+
+    public static String SemicolonMissingCheck_Issue;
 
     public static String SelfReferenceCheck_check_object_module;
 
@@ -315,7 +335,7 @@ final class Messages
     public static String StructureCtorTooManyKeysCheck_Maximum_structure_constructor_keys;
     public static String StructureCtorTooManyKeysCheck_Structure_constructor_has_more_than__0__keys;
     public static String StructureCtorTooManyKeysCheck_title;
-	
+
 	public static String NotSupportGotoOperatorWebCheck_Title;
     public static String NotSupportGotoOperatorWebCheck_Description;
     public static String NotSupportGotoOperatorWebCheck_Issue;
@@ -401,6 +421,12 @@ final class Messages
     public static String MethodTooManyPramsCheck_Method_has_more_than__N__params_with_default_value;
 
     public static String MethodTooManyPramsCheck_title;
+
+    public static String MethodSemicolonExtraCheck_Description;
+
+    public static String MethodSemicolonExtraCheck_Title;
+
+    public static String MethodSemicolonExtraCheck_Issue;
 
     public static String MissingTemporaryFileDeletionCheck_Delete_File_Methods;
 
