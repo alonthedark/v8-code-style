@@ -315,7 +315,7 @@ final class Messages
     public static String StructureCtorTooManyKeysCheck_Maximum_structure_constructor_keys;
     public static String StructureCtorTooManyKeysCheck_Structure_constructor_has_more_than__0__keys;
     public static String StructureCtorTooManyKeysCheck_title;
-	
+
 	public static String NotSupportGotoOperatorWebCheck_Title;
     public static String NotSupportGotoOperatorWebCheck_Description;
     public static String NotSupportGotoOperatorWebCheck_Issue;
@@ -349,6 +349,12 @@ final class Messages
     public static String NstrStringLiteralFormatCheck_NStr_method_should_accept_string_as_first_param;
 
     public static String NstrStringLiteralFormatCheck_title;
+
+    public static String RestrictionExecuteEvalServerCheck_Description;
+
+    public static String RestrictionExecuteEvalServerCheck_Issue;
+
+    public static String RestrictionExecuteEvalServerCheck_Title;
 
     public static String RegionEmptyCheck_description;
 
