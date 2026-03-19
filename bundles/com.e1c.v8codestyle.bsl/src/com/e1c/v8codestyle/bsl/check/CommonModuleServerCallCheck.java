@@ -44,13 +44,11 @@ import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.typesystem.ExportMethodTypeProvider;
 import com._1c.g5.v8.dt.core.platform.IBmModelManager;
 import com._1c.g5.v8.dt.core.platform.IResourceLookup;
-import com._1c.g5.v8.dt.core.platform.IV8Project;
 import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
 import com._1c.g5.v8.dt.mcore.Environmental;
 import com._1c.g5.v8.dt.mcore.util.Environment;
 import com._1c.g5.v8.dt.mcore.util.Environments;
 import com._1c.g5.v8.dt.metadata.mdclass.CommonModule;
-import com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant;
 import com.e1c.g5.dt.core.api.naming.INamingService;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
@@ -60,7 +58,6 @@ import com.e1c.g5.v8.dt.check.settings.IssueType;
 import com.e1c.v8codestyle.bsl.strict.check.AbstractTypeCheck;
 import com.e1c.v8codestyle.check.StandardCheckExtension;
 import com.e1c.v8codestyle.internal.bsl.BslPlugin;
-import com.e1c.v8codestyle.md.CommonModuleTypes;
 import com.google.inject.Inject;
 
 /**
@@ -114,7 +111,6 @@ public class CommonModuleServerCallCheck
             .features(MD_OBJECT__NAME, COMMON_MODULE__SERVER_CALL);
     }
 
-
     @Override
     protected void check(Object object, ResultAcceptor resultAcceptor, ICheckParameters parameters,
         IBmTransaction bmTransaction, IProgressMonitor progressMonitor)
@@ -122,26 +118,20 @@ public class CommonModuleServerCallCheck
         CommonModule commonModule = (CommonModule)object;
         if (commonModule.isServerCall())
         {
-            IV8Project project = v8ProjectManager.getProject(commonModule);
-            ScriptVariant scriptVariant = project == null ? ScriptVariant.ENGLISH : project.getScriptVariant();
-            String suffixe = CommonModuleTypes.SERVER_CALL.getNameSuffix(scriptVariant);
-            String name = commonModule.getName();
-            if (!(name.endsWith(suffixe)))
+
+            List<Boolean> callInClient = new ArrayList<>();
+            List<Method> methods = commonModule.getModule().allMethods();
+            for (Method method : methods)
             {
-                List<Boolean> callInClient = new ArrayList<>();
-                List<Method> methods = commonModule.getModule().allMethods();
-                for (Method method : methods)
+                if (!method.isExport())
                 {
-                    if (!method.isExport())
-                    {
-                        continue;
-                    }
-                    callInClient.add(callInOtherModule(method, progressMonitor, bmTransaction));
+                    continue;
                 }
-                if (!callInClient.isEmpty() && !callInClient.contains(true))
-                {
-                    resultAcceptor.addIssue(Messages.CommonModuleServerCallCheck_Issue, MD_OBJECT__NAME);
-                }
+                callInClient.add(callInOtherModule(method, progressMonitor, bmTransaction));
+            }
+            if (!callInClient.isEmpty() && !callInClient.contains(true))
+            {
+                resultAcceptor.addIssue(Messages.CommonModuleServerCallCheck_Issue, MD_OBJECT__NAME);
             }
         }
     }
@@ -221,7 +211,8 @@ public class CommonModuleServerCallCheck
                     || environments.contains(Environment.THIN_CLIENT)
                     || environments.contains(Environment.MOBILE_THIN_CLIENT))
                 {
-                    checkClientCall.add(true);
+                    clientCall = true;
+                    return clientCall;
                 }
                 else if (environments.contains(Environment.CLIENT) || environments.contains(Environment.MNG_CLIENT))
                 {
