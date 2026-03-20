@@ -140,7 +140,7 @@ public class CommonModuleServerCallCheck
     private boolean callInOtherModule(Method object, IProgressMonitor monitor, IBmTransaction bmTransaction)
     {
         boolean clientCall = false;
-        List<URI> URIs = new ArrayList<>();
+        List<URI> uRIs = new ArrayList<>();
         IProgressMonitor subMonitor = new NullProgressMonitor()
         {
             @Override
@@ -197,10 +197,10 @@ public class CommonModuleServerCallCheck
 
         referenceFinder.findAllReferences(targetUris, workSpaceResourceAccess, indexData, acceptor, subMonitor);
 
-        if (!URIs.isEmpty())
+        if (!uRIs.isEmpty())
         {
             List<Boolean> checkClientCall = new ArrayList<>();
-            for (URI uri : URIs)
+            for (URI uri : uRIs)
             {
                 EObject obj = bmTransaction.getExternalObjectByUri(uri);
                 Method method = EcoreUtil2.getContainerOfType(obj, Method.class);
