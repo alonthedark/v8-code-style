@@ -183,7 +183,7 @@ public class CommonModuleServerCallCheck
 
                 if (!description.getSourceEObjectUri().path().equals(description.getTargetEObjectUri().path()))
                 {
-                    URIs.add(description.getSourceEObjectUri());
+                    uRIs.add(description.getSourceEObjectUri());
                 }
             }
         };
@@ -199,12 +199,15 @@ public class CommonModuleServerCallCheck
 
         if (!uRIs.isEmpty())
         {
-            List<Boolean> checkClientCall = new ArrayList<>();
             for (URI uri : uRIs)
             {
                 EObject obj = bmTransaction.getExternalObjectByUri(uri);
                 Method method = EcoreUtil2.getContainerOfType(obj, Method.class);
                 Environmental environmental = EcoreUtil2.getContainerOfType(method, Environmental.class);
+                if (environmental == null)
+                {
+                    return false;
+                }
                 Environments environments = environmental.environments();
 
                 if (environments.contains(Environment.WEB_CLIENT) || environments.contains(Environment.MOBILE_CLIENT)
@@ -214,14 +217,6 @@ public class CommonModuleServerCallCheck
                     clientCall = true;
                     return clientCall;
                 }
-                else if (environments.contains(Environment.CLIENT) || environments.contains(Environment.MNG_CLIENT))
-                {
-                    checkClientCall.add(false);
-                }
-            }
-            if (checkClientCall.contains(true))
-            {
-                clientCall = true;
             }
         }
         return clientCall;

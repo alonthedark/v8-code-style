@@ -13,6 +13,7 @@
 package com.e1c.v8codestyle.bsl.check.itests;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -31,11 +32,11 @@ public class CommonModuleServerCallCheckTest
 {
     private static final String PROJECT_NAME = "CommonModueServerCallCheckTest";
 
-    private static final String METHOD_NOT_USED = "CommonModule.CommonModule";
+    private static final String METHOD_NOT_USED = "CommonModule.CommonServerCallTestIncorrect";
+
+    private static final String METHOD_USED = "CommonModule.CommonServerCallTestCorrect";
 
     private static final String CHECK_ID = "common-module-server-call";
-
-    protected static final String FOLDER_RESOURCE = "/resources/";
 
     @Override
     protected String getTestConfigurationName()
@@ -50,5 +51,14 @@ public class CommonModuleServerCallCheckTest
         assertNotNull(object);
         Marker marker = getFirstMarker(CHECK_ID, object.bmGetId(), getProject());
         assertNotNull(marker);
+    }
+
+    @Test
+    public void testServerCallFlagCorrect() throws Exception
+    {
+        IBmObject object = getTopObjectByFqn(METHOD_USED, getProject());
+        assertNotNull(object);
+        Marker marker = getFirstMarker(CHECK_ID, object.bmGetId(), getProject());
+        assertNull(marker);
     }
 }

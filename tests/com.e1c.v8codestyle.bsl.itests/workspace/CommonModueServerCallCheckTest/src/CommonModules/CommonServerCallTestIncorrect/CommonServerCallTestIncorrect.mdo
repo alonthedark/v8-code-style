@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mdclass:CommonModule xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="014a8384-ba2c-4968-9bb8-081d5bce6818">
+<mdclass:CommonModule xmlns:mdclass="http://g5.1c.ru/v8/dt/metadata/mdclass" uuid="be9827f5-447a-4b28-9e59-df7b734a7795">
   <name>CommonServerCallTestIncorrect</name>
   <synonym>
-    <key>ru</key>
+    <key>en</key>
     <value>Common server call test incorrect</value>
   </synonym>
   <server>true</server>
-  <externalConnection>true</externalConnection>
   <serverCall>true</serverCall>
 </mdclass:CommonModule>

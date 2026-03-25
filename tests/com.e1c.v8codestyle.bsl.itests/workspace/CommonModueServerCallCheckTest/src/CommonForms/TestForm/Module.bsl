@@ -1,6 +1,6 @@
 &AtClient
-Procedure UsedOnClient()
+Procedure usedOnClient()
     
-    CommonModule.UsedProcedure();
+    CommonServerCallTestCorrect.UsedProcedure();
     
 EndProcedure
