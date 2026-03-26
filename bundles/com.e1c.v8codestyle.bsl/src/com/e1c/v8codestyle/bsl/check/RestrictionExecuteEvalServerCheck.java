@@ -20,16 +20,20 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
 import com._1c.g5.v8.dt.bsl.model.BooleanLiteral;
 import com._1c.g5.v8.dt.bsl.model.Conditional;
 import com._1c.g5.v8.dt.bsl.model.ExecuteStatement;
 import com._1c.g5.v8.dt.bsl.model.Expression;
+import com._1c.g5.v8.dt.bsl.model.IfPreprocessorStatement;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
 import com._1c.g5.v8.dt.bsl.model.Invocation;
 import com._1c.g5.v8.dt.bsl.model.Method;
+import com._1c.g5.v8.dt.bsl.model.PreprocessorItemStatements;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
+import com._1c.g5.v8.dt.bsl.model.TryExceptStatement;
 import com._1c.g5.v8.dt.mcore.Environmental;
 import com._1c.g5.v8.dt.mcore.util.Environment;
 import com._1c.g5.v8.dt.mcore.util.Environments;
@@ -80,15 +84,24 @@ public class RestrictionExecuteEvalServerCheck
             return;
         }
         Environmental environmental = EcoreUtil2.getContainerOfType(eObject, Environmental.class);
+        if (environmental == null)
+        {
+            return;
+        }
         Environments environments = environmental.environments();
 
         if (environments.contains(Environment.SERVER))
         {
             Method method = EcoreUtil2.getContainerOfType(eObject, Method.class);
+            if (method == null)
+            {
+                return;
+            }
             List<Statement> statements = method.allStatements();
             boolean isSafeModeEnable = false;
             for (Statement statement : statements)
             {
+                //TODO В будущем тут использовать граф потока управления
                 if (hasSafeMode(statement))
                 {
                     isSafeModeEnable = true;
@@ -103,20 +116,23 @@ public class RestrictionExecuteEvalServerCheck
 
     private boolean isEval(EObject eObject)
     {
-        if (eObject instanceof Invocation)
+        if (eObject instanceof Invocation invocation)
         {
-            Invocation invocation = (Invocation)eObject;
             String name = invocation.getMethodAccess().getName();
-            return name.equalsIgnoreCase("Вычислить") || name.equalsIgnoreCase("Eval"); //$NON-NLS-1$ //$NON-NLS-2$
+            String text = NodeModelUtils.findActualNodeFor(invocation.eContainer()).getText();
+            if (text.toLowerCase().contains("выражениеxpath") || text.toLowerCase().contains("xpathexpression")) //$NON-NLS-1$ //$NON-NLS-2$
+            {
+                return false;
+            }
+            return "Вычислить".equalsIgnoreCase(name) || "Eval".equalsIgnoreCase(name); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return false;
     }
 
     private boolean hasSafeMode(Statement statement)
     {
-        if (statement instanceof SimpleStatement)
+        if (statement instanceof SimpleStatement simpleStatement)
         {
-            SimpleStatement simpleStatement = (SimpleStatement)statement;
             Expression leftExpression = simpleStatement.getLeft();
             if (!(leftExpression instanceof Invocation))
             {
@@ -125,15 +141,14 @@ public class RestrictionExecuteEvalServerCheck
             Invocation invocation = (Invocation)leftExpression;
             String name = invocation.getMethodAccess().getName();
 
-            if ((name.equalsIgnoreCase("УстановитьБезопасныйРежим") || name.equalsIgnoreCase("SetSafeMode")) //$NON-NLS-1$//$NON-NLS-2$
+            if (("УстановитьБезопасныйРежим".equalsIgnoreCase(name) || "SetSafeMode".equalsIgnoreCase(name)) //$NON-NLS-1$//$NON-NLS-2$
                 && invocation.getParams().size() == 1 && invocation.getParams().get(0) instanceof BooleanLiteral)
             {
                 return ((BooleanLiteral)invocation.getParams().get(0)).isIsTrue();
             }
         }
-        else if (statement instanceof IfStatement)
+        else if (statement instanceof IfStatement ifStatement)
         {
-            IfStatement ifStatement = (IfStatement)statement;
             List<Statement> inIfStatements = ifStatement.getIfPart().getStatements();
             List<Conditional> inElsIfStatements = ifStatement.getElsIfParts();
             boolean safeModeStatus = false;
@@ -151,11 +166,42 @@ public class RestrictionExecuteEvalServerCheck
                 {
                     if (hasSafeMode(statementFromElsIf))
                     {
-                        safeModeStatus = true;
+                        return true;
                     }
                 }
             }
             return safeModeStatus;
+        }
+        else if (statement instanceof TryExceptStatement tryExceptStatement)
+        {
+            List<Statement> tryStatements = tryExceptStatement.getTryStatements();
+            for (Statement tryStatement : tryStatements)
+            {
+                if (hasSafeMode(tryStatement))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else if (statement instanceof IfPreprocessorStatement ifPrepStat)
+        {
+            List<EObject> ifObjects = ifPrepStat.getIfPart().eContents();
+            NodeModelUtils.findActualNodeFor(ifPrepStat).getText();
+            for (EObject eObject : ifObjects)
+            {
+                if (eObject instanceof PreprocessorItemStatements preprocessorItemStatements)
+                {
+                    List<Statement> ifStatements = preprocessorItemStatements.getStatements();
+                    for (Statement ifStatement : ifStatements)
+                    {
+                        if (hasSafeMode(ifStatement))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
         return false;
     }
