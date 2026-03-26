@@ -168,19 +168,8 @@ public abstract class AbstractTypeCheck
      * @param object the object, cannot be {@code null}.
      * @return true, if the object has empty types
      */
-    protected boolean isEmptyTypes(EObject object, IBmTransaction bmTransaction)
+    protected boolean isEmptyTypes(EObject object, Environments actualEnvs, IBmTransaction bmTransaction)
     {
-        Environmental envs = EcoreUtil2.getContainerOfType(object, Environmental.class);
-        if (envs == null)
-        {
-            return true;
-        }
-
-        Environments actualEnvs = bslPreferences.getLoadEnvs(object).intersect(envs.environments());
-        if (actualEnvs.isEmpty())
-        {
-            return true;
-        }
         if (object instanceof Invocation && !actualEnvs.containsAny(Environments.SERVER)
             && ((Invocation)object).isIsServerCall())
         {
