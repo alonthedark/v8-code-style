@@ -99,17 +99,18 @@ public class ApplicationLaunchSecurityCheck
                         if (COM_OBJECT.contains(type.toLowerCase()))
                         {
                             Method method = EcoreUtil2.getContainerOfType(simpStatement, Method.class);
-                            StaticFeatureAccess sfa = (StaticFeatureAccess)simpStatement.getLeft();
-                            String nameStatement = sfa.getName();
-                            params = checkSting(method, nameStatement);
+                            if (simpStatement.getLeft() instanceof StaticFeatureAccess sfa)
+                            {
+                                String nameStatement = sfa.getName();
+                                params = checkSting(method, nameStatement);
+                            }
                         }
                     }
                 }
             }
         }
-        else if (object instanceof Invocation)
+        else if (object instanceof Invocation invocation)
         {
-            Invocation invocation = (Invocation)object;
             FeatureAccess featureAccess = invocation.getMethodAccess();
             name = featureAccess.getName();
             if (IMMUTABLE_MAP_CALL.contains(name.toLowerCase()))
@@ -127,53 +128,48 @@ public class ApplicationLaunchSecurityCheck
 
             if (containSymbol(content))
             {
-                resultAceptor.addIssue(Messages.ApplicationLaunchSecurityCheck_Issue);
+                resultAceptor.addIssue(Messages.ApplicationLaunchSecurityCheck_Issue, parameter);
             }
         }
     }
 
     private String getStringContent(Expression parameter)
     {
-        if (parameter instanceof StringLiteral)
+        if (parameter instanceof StringLiteral literal)
         {
-            StringLiteral literal = (StringLiteral)parameter;
             return String.join(StringUtils.EMPTY, literal.lines(true));
         }
-        else if (parameter instanceof StaticFeatureAccess)
+        else if (parameter instanceof StaticFeatureAccess staticFeatureAccess)
         {
-            StaticFeatureAccess staticFeatureAccess = (StaticFeatureAccess)parameter;
             return staticFeatureAccess.getName();
         }
-        else if (parameter instanceof Invocation)
+        else if (parameter instanceof Invocation invocation)
         {
-            Invocation invocation = (Invocation)parameter;
             String text = NodeModelUtils.findActualNodeFor(invocation).getText();
             return text;
         }
         return null;
     }
 
-    private Boolean containSymbol(String content)
+    private boolean containSymbol(String content)
     {
         if (content == null)
         {
             return false;
         }
-        boolean findSymbol = false;
         for (String symbol : CHECK_SYMBOLS)
         {
             if (content.contains(symbol))
             {
-                findSymbol = true;
+                return true;
             }
         }
-        return findSymbol;
+        return false;
     }
 
     private EList<Expression> checkSting(Method method, String nameCall)
     {
         List<Statement> statements = method.allStatements();
-        EList<Expression> returnValues = null;
         for (Statement statement : statements)
         {
             if (statement instanceof SimpleStatement)
@@ -184,8 +180,7 @@ public class ApplicationLaunchSecurityCheck
                     String textInv = NodeModelUtils.findActualNodeFor(right).getText();
                     if (textInv.toLowerCase().contains(nameCall.toLowerCase()))
                     {
-                        returnValues = right.getParams();
-                        return returnValues;
+                        return right.getParams();
                     }
                 }
                 else if (simpleStatement.getLeft() instanceof Invocation left)
@@ -193,12 +188,11 @@ public class ApplicationLaunchSecurityCheck
                     String textInv = NodeModelUtils.findActualNodeFor(left).getText();
                     if (textInv.toLowerCase().contains(nameCall.toLowerCase()))
                     {
-                        returnValues = left.getParams();
-                        return returnValues;
+                        return left.getParams();
                     }
                 }
             }
         }
-        return returnValues;
+        return null;
     }
 }

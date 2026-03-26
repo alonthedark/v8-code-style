@@ -113,6 +113,35 @@ public class ApplicationLaunchSecurityCheckTest
 
         List<Marker> markers = getModuleMarkers();
         assertTrue(markers.isEmpty());
+    }
 
+    /**
+     * Test safe launch OperatorStyleCreator.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testSafeLaunchOperatorStyleCreator() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "application-safe-launch-OSC.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertTrue(markers.isEmpty());
+    }
+
+    /**
+     * Test unsafe launch OperatorStyleCreator.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testUnsafeLaunchOperatorStyleCreator() throws Exception
+    {
+        updateModule(FOLDER_RESOURCE + "application-unsafe-launch-OSC.bsl");
+
+        List<Marker> markers = getModuleMarkers();
+        assertEquals(1, markers.size());
+        Marker marker = markers.get(0);
+        assertEquals(Integer.valueOf(4), marker.getExtraInfo().get(StandardExtraInfo.TEXT_LINE));
     }
 }
