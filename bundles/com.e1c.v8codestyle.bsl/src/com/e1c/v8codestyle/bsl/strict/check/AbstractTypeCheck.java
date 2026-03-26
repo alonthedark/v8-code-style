@@ -166,12 +166,13 @@ public abstract class AbstractTypeCheck
      * Checks if the object has empty types.
      *
      * @param object the object, cannot be {@code null}.
+     * @param actualEnvs current {@link Environments} for compute types and validation, cannot be {@code null}
+     * @param bmTransaction actual {@link IBmTransaction}, cannot be {@code null}
      * @return true, if the object has empty types
      */
     protected boolean isEmptyTypes(EObject object, Environments actualEnvs, IBmTransaction bmTransaction)
     {
-        if (object instanceof Invocation && !actualEnvs.containsAny(Environments.SERVER)
-            && ((Invocation)object).isIsServerCall())
+        if (object instanceof Invocation inv && !actualEnvs.containsAny(Environments.SERVER) && inv.isIsServerCall())
         {
             actualEnvs = actualEnvs.add(Environments.SERVER);
         }
