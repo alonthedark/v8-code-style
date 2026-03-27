@@ -12,9 +12,7 @@
  *******************************************************************************/
 package com.e1c.v8codestyle.bsl.check;
 
-import static com._1c.g5.v8.dt.metadata.mdclass.MdClassPackage.Literals.COMMON_MODULE;
-import static com._1c.g5.v8.dt.metadata.mdclass.MdClassPackage.Literals.COMMON_MODULE__SERVER_CALL;
-import static com._1c.g5.v8.dt.metadata.mdclass.MdClassPackage.Literals.MD_OBJECT__NAME;
+import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.MODULE;
 import static org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider.PERSISTED_DESCRIPTIONS;
 
 import java.util.ArrayList;
@@ -41,6 +39,8 @@ import org.eclipse.xtext.resource.IResourceDescriptionsProvider;
 import com._1c.g5.v8.bm.core.IBmTransaction;
 import com._1c.g5.v8.dt.bsl.common.IBslPreferences;
 import com._1c.g5.v8.dt.bsl.model.Method;
+import com._1c.g5.v8.dt.bsl.model.Module;
+import com._1c.g5.v8.dt.bsl.model.ModuleType;
 import com._1c.g5.v8.dt.bsl.typesystem.ExportMethodTypeProvider;
 import com._1c.g5.v8.dt.core.platform.IBmModelManager;
 import com._1c.g5.v8.dt.core.platform.IResourceLookup;
@@ -52,7 +52,6 @@ import com._1c.g5.v8.dt.metadata.mdclass.CommonModule;
 import com.e1c.g5.dt.core.api.naming.INamingService;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
-import com.e1c.g5.v8.dt.check.components.TopObjectFilterExtension;
 import com.e1c.g5.v8.dt.check.settings.IssueSeverity;
 import com.e1c.g5.v8.dt.check.settings.IssueType;
 import com.e1c.v8codestyle.bsl.strict.check.AbstractTypeCheck;
@@ -104,23 +103,22 @@ public class CommonModuleServerCallCheck
             .complexity(CheckComplexity.NORMAL)
             .severity(IssueSeverity.MINOR)
             .issueType(IssueType.SECURITY)
-            .extension(new StandardCheckExtension(469, getCheckId(), BslPlugin.PLUGIN_ID))
-            .extension(new TopObjectFilterExtension())
-            .topObject(COMMON_MODULE)
-            .checkTop()
-            .features(MD_OBJECT__NAME, COMMON_MODULE__SERVER_CALL);
+            .extension(new StandardCheckExtension(679, getCheckId(), BslPlugin.PLUGIN_ID))
+            .extension(ModuleTypeFilter.onlyTypes(ModuleType.COMMON_MODULE))
+            .module()
+            .checkedObjectType(MODULE);
     }
 
     @Override
     protected void check(Object object, ResultAcceptor resultAcceptor, ICheckParameters parameters,
         IBmTransaction bmTransaction, IProgressMonitor progressMonitor)
     {
-        CommonModule commonModule = (CommonModule)object;
+        Module module = (Module)object;
+        CommonModule commonModule = (CommonModule)module.getOwner();
         if (commonModule.isServerCall())
         {
-
             List<Boolean> callInClient = new ArrayList<>();
-            List<Method> methods = commonModule.getModule().allMethods();
+            List<Method> methods = module.allMethods();
             for (Method method : methods)
             {
                 if (!method.isExport())
@@ -131,7 +129,7 @@ public class CommonModuleServerCallCheck
             }
             if (!callInClient.isEmpty() && !callInClient.contains(true))
             {
-                resultAcceptor.addIssue(Messages.CommonModuleServerCallCheck_Issue, MD_OBJECT__NAME);
+                resultAcceptor.addIssue(Messages.CommonModuleServerCallCheck_Issue, commonModule);
             }
         }
     }
