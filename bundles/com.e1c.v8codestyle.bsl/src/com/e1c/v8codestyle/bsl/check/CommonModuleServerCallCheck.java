@@ -49,6 +49,7 @@ import com._1c.g5.v8.dt.mcore.Environmental;
 import com._1c.g5.v8.dt.mcore.util.Environment;
 import com._1c.g5.v8.dt.mcore.util.Environments;
 import com._1c.g5.v8.dt.metadata.mdclass.CommonModule;
+import com._1c.g5.v8.dt.metadata.mdclass.MdClassPackage;
 import com.e1c.g5.dt.core.api.naming.INamingService;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
@@ -129,7 +130,8 @@ public class CommonModuleServerCallCheck
             }
             if (!callInClient.isEmpty() && !callInClient.contains(true))
             {
-                resultAcceptor.addIssue(Messages.CommonModuleServerCallCheck_Issue, commonModule);
+                resultAcceptor.addIssue(Messages.CommonModuleServerCallCheck_Issue, commonModule,
+                    MdClassPackage.Literals.COMMON_MODULE__SERVER_CALL);
             }
         }
     }
