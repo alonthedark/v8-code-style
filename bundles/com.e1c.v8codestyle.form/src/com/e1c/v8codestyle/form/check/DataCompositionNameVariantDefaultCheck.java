@@ -40,6 +40,11 @@ public class DataCompositionNameVariantDefaultCheck
     extends BasicCheck<Object>
 {
     private static final String CHECK_ID = "data-composition-variant-name-default"; //$NON-NLS-1$
+    private static final String VARIANT_NAME = "Report variant name"; //$NON-NLS-1$
+    private static final String VARIANT_NAME_RU = "Наименование варианта отчета"; //$NON-NLS-1$
+    private static final String DEFAULT_NAME_RU = "Основной"; //$NON-NLS-1$
+    private static final String DEFAULT_NAME = "Default"; //$NON-NLS-1$
+
 
     @Inject
     public DataCompositionNameVariantDefaultCheck()
@@ -62,6 +67,8 @@ public class DataCompositionNameVariantDefaultCheck
             .severity(IssueSeverity.MINOR)
             .issueType(IssueType.UI_STYLE)
             .extension(new StandardCheckExtension(674, getCheckId(), CorePlugin.PLUGIN_ID))
+            .parameter(VARIANT_NAME_RU, String.class, DEFAULT_NAME_RU, VARIANT_NAME_RU)
+            .parameter(VARIANT_NAME, String.class, DEFAULT_NAME, VARIANT_NAME)
             .topObject(DATA_COMPOSITION_SCHEMA)
             .features(DATA_COMPOSITION_SCHEMA__SETTINGS_VARIANTS);
     }
@@ -83,7 +90,7 @@ public class DataCompositionNameVariantDefaultCheck
             String name = settingsVariant.getName();
             Presentation presentation = settingsVariant.getPresentation();
             EMap<String, String> presentationValue = presentation.getLocalValue().getContent();
-            if (name.equalsIgnoreCase("Основной") || name.equalsIgnoreCase("Default")) //$NON-NLS-1$ //$NON-NLS-2$
+            if (name.equalsIgnoreCase(DEFAULT_NAME_RU) || name.equalsIgnoreCase(DEFAULT_NAME))
             {
                 if (presentationValue.isEmpty())
                 {
@@ -91,7 +98,8 @@ public class DataCompositionNameVariantDefaultCheck
                     continue;
                 }
                 String presentationName = presentationValue.get(0).getValue();
-                if (presentationName.equalsIgnoreCase("Основной") || presentationName.equalsIgnoreCase("Default")) //$NON-NLS-1$//$NON-NLS-2$
+                if (presentationName.equalsIgnoreCase(DEFAULT_NAME_RU)
+                    || presentationName.equalsIgnoreCase(DEFAULT_NAME))
                 {
                     resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_Issue);
                 }
@@ -105,7 +113,8 @@ public class DataCompositionNameVariantDefaultCheck
                 else
                 {
                     String presentationName = presentationValue.get(0).getValue();
-                    if (presentationName.equalsIgnoreCase("Основной") || presentationName.equalsIgnoreCase("Default")) //$NON-NLS-1$//$NON-NLS-2$
+                    if (presentationName.equalsIgnoreCase(DEFAULT_NAME_RU)
+                        || presentationName.equalsIgnoreCase(DEFAULT_NAME))
                     {
                         resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_Issue);
                     }
