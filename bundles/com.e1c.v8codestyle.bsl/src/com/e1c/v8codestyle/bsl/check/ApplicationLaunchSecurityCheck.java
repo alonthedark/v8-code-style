@@ -82,12 +82,9 @@ public class ApplicationLaunchSecurityCheck
     protected void check(Object object, ResultAcceptor resultAceptor, ICheckParameters parameters,
         IProgressMonitor monitor)
     {
-
-        String name = null;
         EList<Expression> params = null;
-        if (object instanceof SimpleStatement)
+        if (object instanceof SimpleStatement simpStatement)
         {
-            SimpleStatement simpStatement = (SimpleStatement)object;
             if (simpStatement.getRight() instanceof OperatorStyleCreator right)
             {
                 String nameObj = NodeModelUtils.findActualNodeFor(right).getText();
@@ -95,14 +92,17 @@ public class ApplicationLaunchSecurityCheck
                 {
                     if (nameObj.toLowerCase().contains(callName))
                     {
-                        String type = getStringContent(right.getParams().get(0));
-                        if (COM_OBJECT.contains(type.toLowerCase()))
+                        if (right.getParams().size() > 0)
                         {
-                            Method method = EcoreUtil2.getContainerOfType(simpStatement, Method.class);
-                            if (simpStatement.getLeft() instanceof StaticFeatureAccess sfa)
+                            String type = getStringContent(right.getParams().get(0));
+                            if (COM_OBJECT.contains(type.toLowerCase()))
                             {
-                                String nameStatement = sfa.getName();
-                                params = checkSting(method, nameStatement);
+                                Method method = EcoreUtil2.getContainerOfType(simpStatement, Method.class);
+                                if (simpStatement.getLeft() instanceof StaticFeatureAccess sfa)
+                                {
+                                    String nameStatement = sfa.getName();
+                                    params = checkSting(method, nameStatement);
+                                }
                             }
                         }
                     }
@@ -112,7 +112,7 @@ public class ApplicationLaunchSecurityCheck
         else if (object instanceof Invocation invocation)
         {
             FeatureAccess featureAccess = invocation.getMethodAccess();
-            name = featureAccess.getName();
+            String name = featureAccess.getName();
             if (IMMUTABLE_MAP_CALL.contains(name.toLowerCase()))
             {
                 params = invocation.getParams();
