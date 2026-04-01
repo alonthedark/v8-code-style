@@ -116,7 +116,7 @@ public class CommonModuleServerCallCheck
     {
         Module module = (Module)object;
         CommonModule commonModule = (CommonModule)module.getOwner();
-        if (commonModule.isServerCall())
+        if (commonModule != null && commonModule.isServerCall())
         {
             List<Boolean> callInClient = new ArrayList<>();
             List<Method> methods = module.allMethods();
