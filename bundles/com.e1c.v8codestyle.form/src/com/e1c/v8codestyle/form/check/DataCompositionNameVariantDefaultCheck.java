@@ -45,7 +45,6 @@ public class DataCompositionNameVariantDefaultCheck
     private static final String DEFAULT_NAME_RU = "Основной"; //$NON-NLS-1$
     private static final String DEFAULT_NAME = "Default"; //$NON-NLS-1$
 
-
     @Inject
     public DataCompositionNameVariantDefaultCheck()
     {
@@ -90,7 +89,8 @@ public class DataCompositionNameVariantDefaultCheck
             String name = settingsVariant.getName();
             Presentation presentation = settingsVariant.getPresentation();
             EMap<String, String> presentationValue = presentation.getLocalValue().getContent();
-            if (name.equalsIgnoreCase(DEFAULT_NAME_RU) || name.equalsIgnoreCase(DEFAULT_NAME))
+            if (name.equalsIgnoreCase(parameters.getString(VARIANT_NAME_RU))
+                || name.equalsIgnoreCase(parameters.getString(VARIANT_NAME)))
             {
                 if (presentationValue.isEmpty())
                 {
@@ -98,8 +98,8 @@ public class DataCompositionNameVariantDefaultCheck
                     continue;
                 }
                 String presentationName = presentationValue.get(0).getValue();
-                if (presentationName.equalsIgnoreCase(DEFAULT_NAME_RU)
-                    || presentationName.equalsIgnoreCase(DEFAULT_NAME))
+                if (presentationName.equalsIgnoreCase(parameters.getString(VARIANT_NAME_RU))
+                    || presentationName.equalsIgnoreCase(parameters.getString(VARIANT_NAME)))
                 {
                     resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_Issue);
                 }
@@ -113,8 +113,8 @@ public class DataCompositionNameVariantDefaultCheck
                 else
                 {
                     String presentationName = presentationValue.get(0).getValue();
-                    if (presentationName.equalsIgnoreCase(DEFAULT_NAME_RU)
-                        || presentationName.equalsIgnoreCase(DEFAULT_NAME))
+                    if (presentationName.equalsIgnoreCase(parameters.getString(VARIANT_NAME_RU))
+                        || presentationName.equalsIgnoreCase(parameters.getString(VARIANT_NAME)))
                     {
                         resultAcceptor.addIssue(Messages.DataCompositionNameVariantDefault_Issue);
                     }
