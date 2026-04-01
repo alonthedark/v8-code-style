@@ -92,7 +92,7 @@ public class ApplicationLaunchSecurityCheck
                 {
                     if (nameObj.toLowerCase().contains(callName))
                     {
-                        if (right.getParams().size() > 0)
+                        if (!right.getParams().isEmpty())
                         {
                             String type = getStringContent(right.getParams().get(0));
                             if (COM_OBJECT.contains(type.toLowerCase()))
@@ -172,9 +172,8 @@ public class ApplicationLaunchSecurityCheck
         List<Statement> statements = method.allStatements();
         for (Statement statement : statements)
         {
-            if (statement instanceof SimpleStatement)
+            if (statement instanceof SimpleStatement simpleStatement)
             {
-                SimpleStatement simpleStatement = (SimpleStatement)statement;
                 if (simpleStatement.getRight() instanceof Invocation right)
                 {
                     String textInv = NodeModelUtils.findActualNodeFor(right).getText();
