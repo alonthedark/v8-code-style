@@ -106,6 +106,7 @@ public class CommonModuleServerCallCheck
             .issueType(IssueType.SECURITY)
             .extension(new StandardCheckExtension(679, getCheckId(), BslPlugin.PLUGIN_ID))
             .extension(ModuleTypeFilter.onlyTypes(ModuleType.COMMON_MODULE))
+            .disable()
             .module()
             .checkedObjectType(MODULE);
     }
