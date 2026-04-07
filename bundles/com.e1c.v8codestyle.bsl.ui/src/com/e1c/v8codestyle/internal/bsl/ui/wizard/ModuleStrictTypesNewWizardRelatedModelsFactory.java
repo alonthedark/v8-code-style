@@ -69,7 +69,7 @@ public class ModuleStrictTypesNewWizardRelatedModelsFactory
                 IFile bslFile = getModuleFile(module);
                 if (bslFile != null)
                 {
-                    createOrUpdateModule(bslFile, project);
+                    createOrUpdateModule(bslFile);
                 }
             }
         }
@@ -79,7 +79,7 @@ public class ModuleStrictTypesNewWizardRelatedModelsFactory
             IFile bslFile = getModuleFile(formToAddModule, project);
             if (bslFile != null)
             {
-                createOrUpdateModule(bslFile, project);
+                createOrUpdateModule(bslFile);
 
                 EObject module = createBslProxyModule(bslFile);
                 createdModels.add(module);
@@ -88,7 +88,7 @@ public class ModuleStrictTypesNewWizardRelatedModelsFactory
 
     }
 
-    private void createOrUpdateModule(IFile bslFile, IProject project)
+    private void createOrUpdateModule(IFile bslFile)
     {
         try
         {
@@ -108,7 +108,7 @@ public class ModuleStrictTypesNewWizardRelatedModelsFactory
             {
                 createParentFolders(bslFile);
             }
-            StrictTypeUtil.setStrictTypeAnnotation(bslFile, project, new NullProgressMonitor());
+            StrictTypeUtil.setStrictTypeAnnotation(bslFile, new NullProgressMonitor());
         }
         catch (IOException | CoreException e)
         {

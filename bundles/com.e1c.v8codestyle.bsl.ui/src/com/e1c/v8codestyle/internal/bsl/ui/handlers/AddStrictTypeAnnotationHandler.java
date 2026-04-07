@@ -192,11 +192,12 @@ public class AddStrictTypeAnnotationHandler
             return;
         }
 
-        updateFiles(files, project, monitor);
+        updateFiles(files, monitor);
     }
 
     private void processMdObjects(IProject project, Collection<MdObject> mdObjects, IProgressMonitor monitor)
     {
+
         if (!project.isAccessible())
         {
             return;
@@ -212,11 +213,13 @@ public class AddStrictTypeAnnotationHandler
             return;
         }
 
-        updateFiles(files, project, monitor);
+        updateFiles(files, monitor);
+
     }
 
     private void processResources(IProject project, Collection<IResource> resources, IProgressMonitor monitor)
     {
+
         if (!project.isAccessible())
         {
             return;
@@ -241,7 +244,8 @@ public class AddStrictTypeAnnotationHandler
             return;
         }
 
-        updateFiles(files, project, monitor);
+        updateFiles(files, monitor);
+
     }
 
     private void appendFilesHierarchically(IResource resource, Collection<IFile> files, IProgressMonitor monitor)
@@ -274,7 +278,7 @@ public class AddStrictTypeAnnotationHandler
         }
     }
 
-    private void updateFiles(Collection<IFile> files, IProject project, IProgressMonitor monitor)
+    private void updateFiles(Collection<IFile> files, IProgressMonitor monitor)
     {
         monitor.beginTask(Messages.AddStrictTypeAnnotationHandler_Update_module_files, files.size());
 
@@ -285,7 +289,7 @@ public class AddStrictTypeAnnotationHandler
                 return;
             }
 
-            addAnnotationIfAbsent(file, project, monitor);
+            addAnnotationIfAbsent(file, monitor);
 
             monitor.worked(1);
         }
@@ -308,7 +312,7 @@ public class AddStrictTypeAnnotationHandler
         return false;
     }
 
-    private void addAnnotationIfAbsent(IFile file, IProject project, IProgressMonitor monitor)
+    private void addAnnotationIfAbsent(IFile file, IProgressMonitor monitor)
     {
         if (monitor.isCanceled())
         {
@@ -319,7 +323,7 @@ public class AddStrictTypeAnnotationHandler
             if (!StrictTypeUtil.hasStrictTypeAnnotation(file)
                 && modelEditingSupport.canEdit(createModuleProxy(file), EditingMode.DIRECT) && !monitor.isCanceled())
             {
-                StrictTypeUtil.setStrictTypeAnnotation(file, project, monitor);
+                StrictTypeUtil.setStrictTypeAnnotation(file, monitor);
             }
         }
         catch (CoreException | IOException e)

@@ -12,8 +12,6 @@
  *******************************************************************************/
 package com.e1c.v8codestyle.bsl.strict;
 
-import static org.eclipse.core.resources.IWorkspace.AVOID_UPDATE;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,13 +23,16 @@ import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -76,6 +77,8 @@ public final class StrictTypeUtil
     public static final boolean PREF_DEFAULT_CREATE_STRICT_TYPES = true;
 
     private static final int COMMENT_LENGTH = IBslCommentToken.LINE_STARTER.length();
+
+    private static final IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
 
     /**
      * Can add module strict-types annotation for project.
@@ -219,7 +222,7 @@ public final class StrictTypeUtil
      * @throws IOException Signals that an I/O exception has occurred.
      * @throws CoreException the core exception
      */
-    public static void setStrictTypeAnnotation(IFile bslFile, IProject project, IProgressMonitor monitor)
+    public static void setStrictTypeAnnotation(IFile bslFile, IProgressMonitor monitor)
         throws IOException, CoreException
     {
         String currentCode = StringUtils.EMPTY;
@@ -254,27 +257,35 @@ public final class StrictTypeUtil
             return;
         }
 
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-
-        workspace.run(runnableMonitor -> {
-            try (InputStream in = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));)
+        ResourcesPlugin.getWorkspace().run(runnableMonitor -> {
+            ISchedulingRule rule = ruleFactory.createRule(bslFile);
+            try
             {
-                if (bslFile.exists())
+                Job.getJobManager().beginRule(rule, new NullProgressMonitor());
+                try (InputStream in = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));)
                 {
-                    bslFile.setContents(in, true, true, monitor);
+                    if (bslFile.exists())
+                    {
+                        bslFile.setContents(in, true, true, runnableMonitor);
+                    }
+                    else
+                    {
+                        bslFile.create(in, true, runnableMonitor);
+                    }
                 }
-                else
+                catch (IOException e)
                 {
-                    bslFile.create(in, true, monitor);
+                    runnableMonitor.setCanceled(true);
+                    IStatus status =
+                        BslPlugin.createErrorStatus("Can't update bsl file with name: " + bslFile.getName(), e); //$NON-NLS-1$
+                    BslPlugin.log(status);
                 }
             }
-            catch (IOException e)
+            finally
             {
-                IStatus status =
-                    BslPlugin.createErrorStatus("Can't update bsl file with name: " + bslFile.getName(), e); //$NON-NLS-1$
-                BslPlugin.log(status);
+                Job.getJobManager().endRule(rule);
             }
-        }, project, AVOID_UPDATE, monitor);
+        }, monitor);
     }
 
     private static int getInsertOffset(String currentCode, String preferedLineSeparator)
