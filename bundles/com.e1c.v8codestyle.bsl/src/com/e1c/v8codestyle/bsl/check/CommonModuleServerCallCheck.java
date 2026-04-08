@@ -16,6 +16,7 @@ import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.MODULE;
 import static org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider.PERSISTED_DESCRIPTIONS;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,6 +24,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -36,7 +38,9 @@ import org.eclipse.xtext.resource.IReferenceDescription;
 import org.eclipse.xtext.resource.IResourceDescriptions;
 import org.eclipse.xtext.resource.IResourceDescriptionsProvider;
 
+import com._1c.g5.v8.bm.core.IBmObject;
 import com._1c.g5.v8.bm.core.IBmTransaction;
+import com._1c.g5.v8.bm.core.event.BmSubEvent;
 import com._1c.g5.v8.dt.bsl.common.IBslPreferences;
 import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.Module;
@@ -52,7 +56,10 @@ import com._1c.g5.v8.dt.metadata.mdclass.CommonModule;
 import com._1c.g5.v8.dt.metadata.mdclass.MdClassPackage;
 import com.e1c.g5.dt.core.api.naming.INamingService;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
+import com.e1c.g5.v8.dt.check.ICheckDefinition;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
+import com.e1c.g5.v8.dt.check.context.CheckContextCollectingSession;
+import com.e1c.g5.v8.dt.check.context.OnModelFeatureChangeContextCollector;
 import com.e1c.g5.v8.dt.check.settings.IssueSeverity;
 import com.e1c.g5.v8.dt.check.settings.IssueType;
 import com.e1c.v8codestyle.bsl.strict.check.AbstractTypeCheck;
@@ -135,6 +142,15 @@ public class CommonModuleServerCallCheck
                     MdClassPackage.Literals.COMMON_MODULE__SERVER_CALL);
             }
         }
+    }
+
+    @Override
+    protected void postConfigureContextCollector(ICheckDefinition definition)
+    {
+        definition.addCheckedModelObjects(MdClassPackage.Literals.COMMON_MODULE, false, Collections.emptySet());
+        definition.addModelFeatureChangeContextCollector(
+            new FeatureChangeContextCollector(MdClassPackage.Literals.COMMON_MODULE__SERVER_CALL),
+            MdClassPackage.Literals.COMMON_MODULE);
     }
 
     @SuppressWarnings("deprecation")
@@ -221,5 +237,27 @@ public class CommonModuleServerCallCheck
             }
         }
         return clientCall;
+    }
+
+    private final class FeatureChangeContextCollector
+        implements OnModelFeatureChangeContextCollector
+    {
+        private final EStructuralFeature targetLocationFeature;
+
+        public FeatureChangeContextCollector(EStructuralFeature targetLocationFeature)
+        {
+            this.targetLocationFeature = targetLocationFeature;
+        }
+
+        @Override
+        public void collectContextOnFeatureChange(IBmObject bmObject, EStructuralFeature feature, BmSubEvent bmEvent,
+            CheckContextCollectingSession contextSession)
+        {
+            if (feature == targetLocationFeature && bmObject instanceof CommonModule commonModule)
+            {
+                contextSession
+                    .addLanguageCheck(EcoreUtil.getURI(commonModule.getModule()).trimFragment().toPlatformString(true));
+            }
+        }
     }
 }
