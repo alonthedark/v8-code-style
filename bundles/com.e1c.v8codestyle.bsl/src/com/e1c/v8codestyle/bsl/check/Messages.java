@@ -175,6 +175,12 @@ final class Messages
 
     public static String RedundantExportCheck_Unused_export_method__0;
 
+    public static String RestrictionExecuteExternalCodeCheck_Description;
+
+    public static String RestrictionExecuteExternalCodeCheck_Issue;
+
+    public static String RestrictionExecuteExternalCodeCheck_Title;
+
     public static String ExportMethodInCommandFormModuleCheck_CheckClientMethodForm;
 
     public static String ExportMethodInCommandFormModuleCheck_CheckServerMethodForm;
