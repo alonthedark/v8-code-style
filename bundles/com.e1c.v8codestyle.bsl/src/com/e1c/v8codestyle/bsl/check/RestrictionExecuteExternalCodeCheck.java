@@ -18,23 +18,27 @@ import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.SIMPLE_STATEMENT;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.naming.IQualifiedNameConverter;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
+import com._1c.g5.v8.bm.core.IBmObject;
+import com._1c.g5.v8.bm.core.IBmTransaction;
+import com._1c.g5.v8.dt.bsl.common.IBslPreferences;
 import com._1c.g5.v8.dt.bsl.model.FeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.Invocation;
 import com._1c.g5.v8.dt.bsl.model.OperatorStyleCreator;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
+import com._1c.g5.v8.dt.core.platform.IBmModelManager;
 import com._1c.g5.v8.dt.core.platform.IConfigurationProvider;
+import com._1c.g5.v8.dt.core.platform.IResourceLookup;
 import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
-import com._1c.g5.v8.dt.metadata.mdclass.Configuration;
-import com._1c.g5.v8.dt.metadata.mdclass.Subsystem;
+import com.e1c.g5.dt.core.api.naming.INamingService;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
 import com.e1c.g5.v8.dt.check.components.ModuleTopObjectNameFilterExtension;
 import com.e1c.g5.v8.dt.check.settings.IssueSeverity;
 import com.e1c.g5.v8.dt.check.settings.IssueType;
+import com.e1c.v8codestyle.bsl.strict.check.AbstractTypeCheck;
 import com.e1c.v8codestyle.check.CommonSenseCheckExtension;
 import com.e1c.v8codestyle.internal.bsl.BslPlugin;
 import com.google.inject.Inject;
@@ -45,22 +49,26 @@ import com.google.inject.Inject;
  *  @author Ivan Sergeev
  */
 public class RestrictionExecuteExternalCodeCheck
-    extends AbstractModuleStructureCheck
+    extends AbstractTypeCheck
 {
     private static final String CHECK_ID = "restriction-execute-external-code"; //$NON-NLS-1$
+
+    private static final String COMPONENT_NAME = "Component name"; //$NON-NLS-1$
 
     private static final Set<String> IMMUTABLE_MAP_COMPONENT = Set.of("подключитьвнешнююкомпоненту", "attachaddin", //$NON-NLS-1$//$NON-NLS-2$
         "начатьустановкувнешнейкомпоненты", "begininstalladdin", "установитьвнешнююкомпоненту", "installaddin", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
         "начатьподключениевнешнейкомпоненты", "beginattachingaddin", "загрузитьвнешнююкомпоненту", "loadaddin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-    private final IConfigurationProvider configurationProvider;
+    private static final String DELIMITER = ","; //$NON-NLS-1$
+
+    private static final String DEFAULT_COMPONENT = String.join(DELIMITER, IMMUTABLE_MAP_COMPONENT);
 
     @Inject
-    public RestrictionExecuteExternalCodeCheck(IV8ProjectManager v8ProjectManager,
-        IConfigurationProvider configurationProvider)
+    public RestrictionExecuteExternalCodeCheck(IResourceLookup resourceLookup, IBslPreferences bslPreferences,
+        IV8ProjectManager v8ProjectManager, IQualifiedNameConverter qualifiedNameConverter,
+        INamingService namingService, IBmModelManager bmModelManager, IConfigurationProvider configurationProvider)
     {
-        super();
-        this.configurationProvider = configurationProvider;
+        super(resourceLookup, bslPreferences, qualifiedNameConverter, namingService, bmModelManager, v8ProjectManager);
     }
 
     @Override
@@ -79,6 +87,8 @@ public class RestrictionExecuteExternalCodeCheck
             .issueType(IssueType.SECURITY)
             .extension(new ModuleTopObjectNameFilterExtension())
             .extension(new CommonSenseCheckExtension(getCheckId(), BslPlugin.PLUGIN_ID))
+            .parameter(COMPONENT_NAME, String.class, DEFAULT_COMPONENT,
+                Messages.RestrictionExecuteExternalCodeCheck_Parametr_Title)
             .module()
             .checkedObjectType(SIMPLE_STATEMENT)
             .checkedObjectType(INVOCATION);
@@ -86,12 +96,11 @@ public class RestrictionExecuteExternalCodeCheck
 
     @Override
     protected void check(Object object, ResultAcceptor resultAceptor, ICheckParameters parameters,
-        IProgressMonitor monitor)
+        IBmTransaction bmTransaction, IProgressMonitor monitor)
     {
-        EObject eObject = (EObject)object;
-        Configuration configuration = configurationProvider.getConfiguration(eObject);
-        EList<Subsystem> subSystems = configuration.getSubsystems();
-        if (findSSL(subSystems))
+        IBmObject bmObject = bmTransaction.getTopObjectByFqn("Subsystem.СтандартныеПодсистемы"); //$NON-NLS-1$
+        IBmObject bmObjectEn = bmTransaction.getTopObjectByFqn("Subsystem.StandardSubsystems");//$NON-NLS-1$
+        if (bmObject != null || bmObjectEn != null)
         {
             if (object instanceof SimpleStatement statement)
             {
@@ -109,24 +118,11 @@ public class RestrictionExecuteExternalCodeCheck
             {
                 FeatureAccess featureAccess = invocation.getMethodAccess();
                 String name = featureAccess.getName();
-                if (IMMUTABLE_MAP_COMPONENT.contains(name.toLowerCase()))
+                if (parameters.getString(COMPONENT_NAME).toLowerCase().contains(name.toLowerCase()))
                 {
                     resultAceptor.addIssue(Messages.RestrictionExecuteExternalCodeCheck_Issue, invocation);
                 }
             }
         }
-    }
-
-    private boolean findSSL(EList<Subsystem> subSystems)
-    {
-        for (Subsystem subsystem : subSystems)
-        {
-            String name = subsystem.getName();
-            if (name.equalsIgnoreCase("СтандартныеПодсистемы") || name.equalsIgnoreCase("StandardSubsystems")) //$NON-NLS-1$ //$NON-NLS-2$
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

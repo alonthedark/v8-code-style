@@ -181,6 +181,8 @@ final class Messages
 
     public static String RestrictionExecuteExternalCodeCheck_Title;
 
+    public static String RestrictionExecuteExternalCodeCheck_Parametr_Title;
+
     public static String ExportMethodInCommandFormModuleCheck_CheckClientMethodForm;
 
     public static String ExportMethodInCommandFormModuleCheck_CheckServerMethodForm;
