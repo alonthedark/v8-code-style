@@ -12,7 +12,7 @@ Doc = ObjectWord.Documents.Open(FileName);
 
 ObjectWord = New COMObject("Word.Application");
 ObjectWord.WordBasic.DisableAutoMacros(1);
-Документ = ObjectWord.Documents.Open(FileName);
+Document = ObjectWord.Documents.Open(FileName);
 
  ## See
 - [Security of software called through public interfaces](https://its.1c.ru/db/v8std#content:775:hdoc)

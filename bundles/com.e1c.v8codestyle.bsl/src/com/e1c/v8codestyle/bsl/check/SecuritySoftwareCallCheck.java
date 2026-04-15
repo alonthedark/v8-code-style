@@ -78,25 +78,22 @@ public class SecuritySoftwareCallCheck
         SimpleStatement statement = (SimpleStatement)object;
         if (statement.getRight() instanceof OperatorStyleCreator right)
         {
-            String nameObj = NodeModelUtils.findActualNodeFor(right).getText();
-            for (String callName : IMMUTABLE_MAP_CALL)
+            if (IMMUTABLE_MAP_CALL.contains(right.getType().getNameRu().toLowerCase())
+                || IMMUTABLE_MAP_CALL.contains(right.getType().getName().toLowerCase()))
             {
-                if (nameObj.toLowerCase().contains(callName))
+                if (!right.getParams().isEmpty())
                 {
-                    if (!right.getParams().isEmpty())
+                    String type = getStringContent(right.getParams().get(0));
+                    if (type.toLowerCase().contains(COM_APPLICATION))
                     {
-                        String type = getStringContent(right.getParams().get(0));
-                        if (type.toLowerCase().contains(COM_APPLICATION))
+                        Method method = EcoreUtil2.getContainerOfType(statement, Method.class);
+                        if (statement.getLeft() instanceof StaticFeatureAccess sfa)
                         {
-                            Method method = EcoreUtil2.getContainerOfType(statement, Method.class);
-                            if (statement.getLeft() instanceof StaticFeatureAccess sfa)
+                            String nameStatement = sfa.getName();
+                            boolean macrosDisable = checkSting(method, nameStatement);
+                            if (!macrosDisable)
                             {
-                                String nameStatement = sfa.getName();
-                                boolean macrosDisable = checkSting(method, nameStatement);
-                                if (!macrosDisable)
-                                {
-                                    resultAceptor.addIssue(Messages.SecuritySoftwareCall_Issue);
-                                }
+                                resultAceptor.addIssue(Messages.SecuritySoftwareCall_Issue);
                             }
                         }
                     }
@@ -134,7 +131,7 @@ public class SecuritySoftwareCallCheck
                         List<String> values = right.getValue();
                         for (String value : values)
                         {
-                            if (value.equalsIgnoreCase("3")) //$NON-NLS-1$
+                            if ("3".equals(value)) //$NON-NLS-1$
                             {
                                 return true;
                             }
@@ -151,7 +148,7 @@ public class SecuritySoftwareCallCheck
                         List<String> values = number.getValue();
                         for (String value : values)
                         {
-                            if (value.equalsIgnoreCase("1")) //$NON-NLS-1$
+                            if ("1".equals(value)) //$NON-NLS-1$
                             {
                                 return true;
                             }
