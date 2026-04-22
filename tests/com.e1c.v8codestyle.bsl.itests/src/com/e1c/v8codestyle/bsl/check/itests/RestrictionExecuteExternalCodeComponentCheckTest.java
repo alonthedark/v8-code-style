@@ -21,22 +21,22 @@ import org.junit.Test;
 
 import com._1c.g5.v8.dt.validation.marker.Marker;
 import com._1c.g5.v8.dt.validation.marker.StandardExtraInfo;
-import com.e1c.v8codestyle.bsl.check.RestrictionExecuteExternalCodeCheck;
+import com.e1c.v8codestyle.bsl.check.RestrictionExecuteExternalCodeComponentCheck;
 
 /**
- * Tests for {@link RestrictionExecuteExternalCodeCheck} check.
+ * Tests for {@link RestrictionExecuteExternalCodeComponentCheck} check.
  *
  * @author Ivan Sergeev
  */
-public class RestrictionExecuteExternalCodeCheckTest
+public class RestrictionExecuteExternalCodeComponentCheckTest
     extends AbstractSingleModuleTestBase
 {
 
     private static final String PROJECT_NAME = "ExecuteExternalCodeCheckTest";
 
-    public RestrictionExecuteExternalCodeCheckTest()
+    public RestrictionExecuteExternalCodeComponentCheckTest()
     {
-        super(RestrictionExecuteExternalCodeCheck.class);
+        super(RestrictionExecuteExternalCodeComponentCheck.class);
     }
 
     @Override
@@ -46,14 +46,14 @@ public class RestrictionExecuteExternalCodeCheckTest
     }
 
     /**
-     * Test invocation not use SSL.
+     * External call not use ssl.
      *
      * @throws Exception the exception
      */
     @Test
-    public void testInvocationNotUseSSL() throws Exception
+    public void testExternalCallNotUseSSL() throws Exception
     {
-        updateModule(FOLDER_RESOURCE + "new-unsafe-openssl.bsl");
+        updateModule(FOLDER_RESOURCE + "external-call-not-use-ssl.bsl");
 
         List<Marker> markers = getModuleMarkers();
         assertEquals(1, markers.size());
@@ -62,14 +62,14 @@ public class RestrictionExecuteExternalCodeCheckTest
     }
 
     /**
-     * Test invocation not use SSL in parametr.
+     * External call not use ssl eng.
      *
      * @throws Exception the exception
      */
     @Test
-    public void testInvocationNotUseSSLinParametr() throws Exception
+    public void testExternalCallNotUseSSLEng() throws Exception
     {
-        updateModule(FOLDER_RESOURCE + "new-unsafe-openssl-parametr.bsl");
+        updateModule(FOLDER_RESOURCE + "external-call-not-use-ssl-eng.bsl");
 
         List<Marker> markers = getModuleMarkers();
         assertEquals(1, markers.size());
@@ -78,14 +78,14 @@ public class RestrictionExecuteExternalCodeCheckTest
     }
 
     /**
-     * Test invocation use SSL.
+     * External call use ssl.
      *
      * @throws Exception the exception
      */
     @Test
-    public void testInvocationUseSSL() throws Exception
+    public void testExternalCallUseSSL() throws Exception
     {
-        updateModule(FOLDER_RESOURCE + "new-safe-openssl.bsl");
+        updateModule(FOLDER_RESOURCE + "external-call-use-ssl.bsl");
 
         List<Marker> markers = getModuleMarkers();
         assertTrue(markers.isEmpty());

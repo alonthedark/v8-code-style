@@ -3,17 +3,21 @@
 When using the Standard Subsystem Library in a configuration, you should use the library's component 
 connection methods and completely avoid direct use of platform-specific mechanisms for connecting 
 external components, such as:
-New OpenSSLSecureConnection
+AttachAddIn
+BeginInstallAddIn
+InstallAddIn
+BeginAttachIngAddin
+LoadAddIn
 
 Should use the methods from the Standard Subsystems Library.
 
 ## Noncompliant Code Example
 
-New OpenSSLSecureConnection;
+AttachAddIn
 
 ## Compliant Solution
 
-CommonClienServer.NewSecureConnection;
+CommonClient.AttachComponentFromLayout;
 
 ## See
 

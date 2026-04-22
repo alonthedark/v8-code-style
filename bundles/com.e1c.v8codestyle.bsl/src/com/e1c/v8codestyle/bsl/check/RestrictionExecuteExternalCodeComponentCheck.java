@@ -12,18 +12,20 @@
  *******************************************************************************/
 package com.e1c.v8codestyle.bsl.check;
 
-import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.SIMPLE_STATEMENT;
+import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.INVOCATION;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
-import org.eclipse.xtext.nodemodel.ICompositeNode;
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
 import com._1c.g5.v8.bm.core.IBmObject;
 import com._1c.g5.v8.bm.core.IBmTransaction;
 import com._1c.g5.v8.dt.bsl.common.IBslPreferences;
-import com._1c.g5.v8.dt.bsl.model.OperatorStyleCreator;
-import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
+import com._1c.g5.v8.dt.bsl.model.FeatureAccess;
+import com._1c.g5.v8.dt.bsl.model.Invocation;
 import com._1c.g5.v8.dt.core.platform.IBmModelManager;
 import com._1c.g5.v8.dt.core.platform.IConfigurationProvider;
 import com._1c.g5.v8.dt.core.platform.IResourceLookup;
@@ -44,13 +46,23 @@ import com.google.inject.Inject;
  *
  *  @author Ivan Sergeev
  */
-public class RestrictionExecuteExternalCodeCheck
+public class RestrictionExecuteExternalCodeComponentCheck
     extends AbstractTypeCheck
 {
-    private static final String CHECK_ID = "restriction-execute-external-code"; //$NON-NLS-1$
+    private static final String CHECK_ID = "restriction-execute-external-component-code"; //$NON-NLS-1$
+
+    private static final String COMPONENT_NAME = "Component name"; //$NON-NLS-1$
+
+    private static final Set<String> IMMUTABLE_MAP_COMPONENT = Set.of("подключитьвнешнююкомпоненту", "attachaddin", //$NON-NLS-1$//$NON-NLS-2$
+        "начатьустановкувнешнейкомпоненты", "begininstalladdin", "установитьвнешнююкомпоненту", "installaddin", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        "начатьподключениевнешнейкомпоненты", "beginattachingaddin", "загрузитьвнешнююкомпоненту", "loadaddin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+    private static final String DELIMITER = ","; //$NON-NLS-1$
+
+    private static final String DEFAULT_COMPONENT = String.join(DELIMITER, IMMUTABLE_MAP_COMPONENT);
 
     @Inject
-    public RestrictionExecuteExternalCodeCheck(IResourceLookup resourceLookup, IBslPreferences bslPreferences,
+    public RestrictionExecuteExternalCodeComponentCheck(IResourceLookup resourceLookup, IBslPreferences bslPreferences,
         IV8ProjectManager v8ProjectManager, IQualifiedNameConverter qualifiedNameConverter,
         INamingService namingService, IBmModelManager bmModelManager, IConfigurationProvider configurationProvider)
     {
@@ -73,32 +85,31 @@ public class RestrictionExecuteExternalCodeCheck
             .issueType(IssueType.SECURITY)
             .extension(new ModuleTopObjectNameFilterExtension())
             .extension(new CommonSenseCheckExtension(getCheckId(), BslPlugin.PLUGIN_ID))
+            .parameter(COMPONENT_NAME, String.class, DEFAULT_COMPONENT,
+                Messages.RestrictionExecuteExternalCodeCheck_Parametr_Title)
             .module()
-            .checkedObjectType(SIMPLE_STATEMENT);
+            .checkedObjectType(INVOCATION);
     }
 
     @Override
     protected void check(Object object, ResultAcceptor resultAceptor, ICheckParameters parameters,
         IBmTransaction bmTransaction, IProgressMonitor monitor)
     {
-        if (object instanceof SimpleStatement statement)
+        if (object instanceof Invocation invocation)
         {
-            if (statement.getRight() instanceof OperatorStyleCreator right)
+            FeatureAccess featureAccess = invocation.getMethodAccess();
+            String name = featureAccess.getName();
+            String components = parameters.getString(COMPONENT_NAME).toLowerCase();
+            List<String> ComponentNames = Arrays.asList(components.split(DELIMITER));
+            for (String string : ComponentNames)
             {
-                ICompositeNode nameNode = NodeModelUtils.findActualNodeFor(right);
-                if (nameNode == null)
-                {
-                    return;
-                }
-                String nameObj = nameNode.getText();
-                if (nameObj.toLowerCase().contains("защищенноесоединениеopenssl") //$NON-NLS-1$
-                    || nameObj.toLowerCase().contains("opensslsecureconnection")) //$NON-NLS-1$
+                if (string.equalsIgnoreCase(name))
                 {
                     IBmObject bmObject = bmTransaction.getTopObjectByFqn("Subsystem.СтандартныеПодсистемы"); //$NON-NLS-1$
                     IBmObject bmObjectEn = bmTransaction.getTopObjectByFqn("Subsystem.StandardSubsystems");//$NON-NLS-1$
                     if (bmObject != null || bmObjectEn != null)
                     {
-                        resultAceptor.addIssue(Messages.RestrictionExecuteExternalCodeCheck_Issue, right);
+                        resultAceptor.addIssue(Messages.RestrictionExecuteExternalCodeCheck_Issue, invocation);
                     }
                 }
             }
