@@ -84,6 +84,10 @@ public class SecuritySoftwareCallCheck
                 if (!right.getParams().isEmpty())
                 {
                     String type = getStringContent(right.getParams().get(0));
+                    if (type == null)
+                    {
+                        return;
+                    }
                     if (type.toLowerCase().contains(COM_APPLICATION))
                     {
                         Method method = EcoreUtil2.getContainerOfType(statement, Method.class);
