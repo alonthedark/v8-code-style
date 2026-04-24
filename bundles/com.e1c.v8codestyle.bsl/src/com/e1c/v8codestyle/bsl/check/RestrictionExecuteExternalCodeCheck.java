@@ -28,6 +28,7 @@ import com._1c.g5.v8.dt.core.platform.IBmModelManager;
 import com._1c.g5.v8.dt.core.platform.IConfigurationProvider;
 import com._1c.g5.v8.dt.core.platform.IResourceLookup;
 import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
+import com._1c.g5.v8.dt.mcore.util.McoreUtil;
 import com.e1c.g5.dt.core.api.naming.INamingService;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
@@ -90,9 +91,7 @@ public class RestrictionExecuteExternalCodeCheck
                 {
                     return;
                 }
-                String nameObj = nameNode.getText();
-                if (nameObj.toLowerCase().contains("защищенноесоединениеopenssl") //$NON-NLS-1$
-                    || nameObj.toLowerCase().contains("opensslsecureconnection")) //$NON-NLS-1$
+                if ("opensslsecureconnection".equalsIgnoreCase(McoreUtil.getTypeName(right.getType()))) //$NON-NLS-1$
                 {
                     IBmObject bmObject = bmTransaction.getTopObjectByFqn("Subsystem.СтандартныеПодсистемы"); //$NON-NLS-1$
                     IBmObject bmObjectEn = bmTransaction.getTopObjectByFqn("Subsystem.StandardSubsystems");//$NON-NLS-1$

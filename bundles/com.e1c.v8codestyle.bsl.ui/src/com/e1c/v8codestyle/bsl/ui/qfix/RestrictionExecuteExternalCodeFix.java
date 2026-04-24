@@ -85,25 +85,53 @@ public class RestrictionExecuteExternalCodeFix
         if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
         {
             String oldText = "новый защищенноесоединениеopenssl"; //$NON-NLS-1$
-            String text = node.getText().toLowerCase();
-            int index = text.indexOf(oldText);
+            String text = node.getText();
+            int lengthParametr = 0;
+            int index = text.toLowerCase().indexOf(oldText);
             if (index != -1)
             {
-                return new ReplaceEdit(issueOffset + index - 1, oldText.length(),
-                    "ОбщегоНазначенияКлиентСервер.НовоеЗащищенноеСоединение()"); //$NON-NLS-1$
+                String parametr = ""; //$NON-NLS-1$
+                if (text.charAt(index + oldText.length()) == "(".charAt(0)) //$NON-NLS-1$
+                {
+                    parametr = parametr(oldText.length(), index, text);
+                    lengthParametr = parametr.length() + 2;
+                }
+                return new ReplaceEdit(issueOffset + index - 1, oldText.length() + lengthParametr,
+                    "ОбщегоНазначенияКлиентСервер.НовоеЗащищенноеСоединение" + "(" + parametr + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
         }
         else if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.ENGLISH)
         {
             String oldText = "new opensslsecureconnection"; //$NON-NLS-1$
-            String text = node.getText().toLowerCase();
-            int index = text.indexOf(oldText);
+            String text = node.getText();
+            int lengthParametr = 0;
+            int index = text.toLowerCase().indexOf(oldText);
             if (index != -1)
             {
-                return new ReplaceEdit(issueOffset + index - 1, oldText.length(),
-                    "CommonClientServer.NewSecureConnection()"); //$NON-NLS-1$
+                String parametr = ""; //$NON-NLS-1$
+                if (text.charAt(index + oldText.length()) == "(".charAt(0)) //$NON-NLS-1$
+                {
+                    parametr = parametr(oldText.length(), index, text);
+                    lengthParametr = parametr.length() + 2;
+                }
+                return new ReplaceEdit(issueOffset + index - 1, oldText.length() + lengthParametr,
+                    "CommonClientServer.NewSecureConnection" + "(" + parametr + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
         }
         return null;
+    }
+
+    private String parametr(int oldTextLength, int index, String text)
+    {
+        String parametrs = ""; //$NON-NLS-1$
+        char[] originText = text.substring(index + oldTextLength + 1).toCharArray();
+        for (char c : originText)
+        {
+            if (c != ")".charAt(0)) //$NON-NLS-1$
+            {
+                parametrs = parametrs + c;
+            }
+        }
+        return parametrs;
     }
 }

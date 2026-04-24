@@ -1,5 +1,5 @@
-Procedure Test()
+Procedure Test(Parametrs)
     
-InstallAddIn(<Location>);
+InstallAddIn(Parametrs.Location);
     
 EndProcedure 

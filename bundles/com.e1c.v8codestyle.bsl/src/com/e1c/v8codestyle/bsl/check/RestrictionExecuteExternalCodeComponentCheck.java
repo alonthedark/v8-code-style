@@ -101,9 +101,9 @@ public class RestrictionExecuteExternalCodeComponentCheck
             String name = featureAccess.getName();
             String components = parameters.getString(COMPONENT_NAME).toLowerCase();
             List<String> ComponentNames = Arrays.asList(components.split(DELIMITER));
-            for (String string : ComponentNames)
+            for (String componentName : ComponentNames)
             {
-                if (string.equalsIgnoreCase(name))
+                if (componentName.equalsIgnoreCase(name))
                 {
                     IBmObject bmObject = bmTransaction.getTopObjectByFqn("Subsystem.СтандартныеПодсистемы"); //$NON-NLS-1$
                     IBmObject bmObjectEn = bmTransaction.getTopObjectByFqn("Subsystem.StandardSubsystems");//$NON-NLS-1$
