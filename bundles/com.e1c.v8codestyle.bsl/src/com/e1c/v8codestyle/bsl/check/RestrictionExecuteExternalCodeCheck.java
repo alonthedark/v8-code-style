@@ -14,14 +14,15 @@ package com.e1c.v8codestyle.bsl.check;
 
 import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.SIMPLE_STATEMENT;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.naming.IQualifiedNameConverter;
-import org.eclipse.xtext.nodemodel.ICompositeNode;
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
 import com._1c.g5.v8.bm.core.IBmObject;
 import com._1c.g5.v8.bm.core.IBmTransaction;
 import com._1c.g5.v8.dt.bsl.common.IBslPreferences;
+import com._1c.g5.v8.dt.bsl.model.Expression;
 import com._1c.g5.v8.dt.bsl.model.OperatorStyleCreator;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.core.platform.IBmModelManager;
@@ -86,11 +87,6 @@ public class RestrictionExecuteExternalCodeCheck
         {
             if (statement.getRight() instanceof OperatorStyleCreator right)
             {
-                ICompositeNode nameNode = NodeModelUtils.findActualNodeFor(right);
-                if (nameNode == null)
-                {
-                    return;
-                }
                 if ("opensslsecureconnection".equalsIgnoreCase(McoreUtil.getTypeName(right.getType()))) //$NON-NLS-1$
                 {
                     IBmObject bmObject = bmTransaction.getTopObjectByFqn("Subsystem.СтандартныеПодсистемы"); //$NON-NLS-1$
@@ -98,6 +94,26 @@ public class RestrictionExecuteExternalCodeCheck
                     if (bmObject != null || bmObjectEn != null)
                     {
                         resultAceptor.addIssue(Messages.RestrictionExecuteExternalCodeCheck_Issue, right);
+                    }
+                }
+                else if ("HTTPConnection".equalsIgnoreCase(McoreUtil.getTypeName(right.getType()))) //$NON-NLS-1$
+                {
+                    List<Expression> params = right.getParams();
+                    for (Expression expression : params)
+                    {
+                        if (expression instanceof OperatorStyleCreator rightParam)
+                        {
+                            if ("opensslsecureconnection".equalsIgnoreCase(McoreUtil.getTypeName(rightParam.getType()))) //$NON-NLS-1$
+                            {
+                                IBmObject bmObject = bmTransaction.getTopObjectByFqn("Subsystem.СтандартныеПодсистемы"); //$NON-NLS-1$
+                                IBmObject bmObjectEn = bmTransaction.getTopObjectByFqn("Subsystem.StandardSubsystems");//$NON-NLS-1$
+                                if (bmObject != null || bmObjectEn != null)
+                                {
+                                    resultAceptor.addIssue(Messages.RestrictionExecuteExternalCodeCheck_Issue,
+                                        rightParam);
+                                }
+                            }
+                        }
                     }
                 }
             }
