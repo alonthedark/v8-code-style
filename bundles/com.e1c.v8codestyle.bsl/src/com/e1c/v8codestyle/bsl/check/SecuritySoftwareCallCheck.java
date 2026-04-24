@@ -15,7 +15,6 @@ package com.e1c.v8codestyle.bsl.check;
 import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.SIMPLE_STATEMENT;
 
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.EcoreUtil2;
@@ -31,6 +30,7 @@ import com._1c.g5.v8.dt.bsl.model.Statement;
 import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.StringLiteral;
 import com._1c.g5.v8.dt.common.StringUtils;
+import com._1c.g5.v8.dt.mcore.util.McoreUtil;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
 import com.e1c.g5.v8.dt.check.components.ModuleTopObjectNameFilterExtension;
@@ -49,7 +49,6 @@ public class SecuritySoftwareCallCheck
 {
     private static final String CHECK_ID = "security-software-call"; //$NON-NLS-1$
     private static final String COM_APPLICATION = "application"; //$NON-NLS-1$
-    private static final Set<String> IMMUTABLE_MAP_CALL = Set.of("comобъект", "comobject"); //$NON-NLS-1$ //$NON-NLS-2$
 
     @Override
     public String getCheckId()
@@ -78,8 +77,7 @@ public class SecuritySoftwareCallCheck
         SimpleStatement statement = (SimpleStatement)object;
         if (statement.getRight() instanceof OperatorStyleCreator right)
         {
-            if (IMMUTABLE_MAP_CALL.contains(right.getType().getNameRu().toLowerCase())
-                || IMMUTABLE_MAP_CALL.contains(right.getType().getName().toLowerCase()))
+            if (McoreUtil.getTypeName(right.getType()).equalsIgnoreCase("comobject")) //$NON-NLS-1$
             {
                 if (!right.getParams().isEmpty())
                 {
@@ -148,13 +146,39 @@ public class SecuritySoftwareCallCheck
                     if (textInv.toLowerCase().contains(nameCall.toLowerCase())
                         && textInv.toLowerCase().contains("disableautomacros")) //$NON-NLS-1$
                     {
-                        NumberLiteral number = (NumberLiteral)left.getParams().get(0);
-                        List<String> values = number.getValue();
-                        for (String value : values)
+                        if (left.getParams().size() == 1 && left.getParams().get(0) instanceof NumberLiteral number)
                         {
-                            if ("1".equals(value)) //$NON-NLS-1$
+                            List<String> values = number.getValue();
+                            for (String value : values)
                             {
-                                return true;
+                                if ("1".equals(value)) //$NON-NLS-1$
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        else if (left.getParams().get(0) instanceof StaticFeatureAccess sfa)
+                        {
+                            for (Statement statParam : statements)
+                            {
+                                if (statParam instanceof SimpleStatement simpStatement)
+                                {
+                                    if (simpStatement.getLeft() instanceof StaticFeatureAccess leftParam
+                                        && simpStatement.getRight() instanceof NumberLiteral numberParam)
+                                    {
+                                        if (leftParam.getName().equalsIgnoreCase(sfa.getName()))
+                                        {
+                                            List<String> values = numberParam.getValue();
+                                            for (String value : values)
+                                            {
+                                                if ("1".equals(value)) //$NON-NLS-1$
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
