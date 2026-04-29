@@ -16,12 +16,10 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
-import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.nodemodel.INode;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.resource.XtextResource;
 
-import com._1c.g5.v8.dt.bsl.model.Module;
 import com._1c.g5.v8.dt.bsl.model.OperatorStyleCreator;
 import com._1c.g5.v8.dt.core.platform.IV8Project;
 import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
@@ -62,76 +60,70 @@ public class RestrictionExecuteExternalCodeFix
     protected TextEdit fixIssue(XtextResource state, IXtextBslModuleFixModel model) throws BadLocationException
     {
         EObject eobject = model.getElement();
-        if (!(eobject instanceof OperatorStyleCreator))
+        if (eobject instanceof OperatorStyleCreator operatorStyleCreator)
         {
-            return null;
-        }
-        int issueOffset = model.getIssue().getOffset();
-        Module module = EcoreUtil2.getContainerOfType(model.getElement(), Module.class);
-        INode moduleNode = NodeModelUtils.findActualNodeFor(module);
-        if (moduleNode == null)
-        {
-            return null;
-        }
-
-        IV8Project baseProject = v8ProjectManager.getProject(eobject);
-        ScriptVariant languageCode = baseProject.getScriptVariant();
-
-        INode node = NodeModelUtils.findActualNodeFor(eobject);
-        if (node == null)
-        {
-            return null;
-        }
-        if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
-        {
-            String oldText = "новый защищенноесоединениеopenssl"; //$NON-NLS-1$
-            String text = node.getText();
-            int lengthParametr = 0;
-            int index = text.toLowerCase().indexOf(oldText);
-            if (index != -1)
+            int issueOffset = model.getIssue().getOffset();
+            INode node = NodeModelUtils.findActualNodeFor(eobject);
+            if (node == null)
             {
-                String parametr = ""; //$NON-NLS-1$
-                if (text.charAt(index + oldText.length()) == "(".charAt(0)) //$NON-NLS-1$
-                {
-                    parametr = parametr(oldText.length(), index, text);
-                    lengthParametr = parametr.length() + 2;
-                }
-                return new ReplaceEdit(issueOffset + index - 1, oldText.length() + lengthParametr,
-                    "ОбщегоНазначенияКлиентСервер.НовоеЗащищенноеСоединение" + "(" + parametr + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                return null;
             }
-        }
-        else if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.ENGLISH)
-        {
-            String oldText = "new opensslsecureconnection"; //$NON-NLS-1$
-            String text = node.getText();
-            int lengthParametr = 0;
-            int index = text.toLowerCase().indexOf(oldText);
-            if (index != -1)
-            {
-                String parametr = ""; //$NON-NLS-1$
-                if (text.charAt(index + oldText.length()) == "(".charAt(0)) //$NON-NLS-1$
-                {
-                    parametr = parametr(oldText.length(), index, text);
-                    lengthParametr = parametr.length() + 2;
-                }
-                return new ReplaceEdit(issueOffset + index - 1, oldText.length() + lengthParametr,
-                    "CommonClientServer.NewSecureConnection" + "(" + parametr + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            }
+            IV8Project baseProject = v8ProjectManager.getProject(eobject);
+            ScriptVariant languageCode = baseProject.getScriptVariant();
+            String parametrs = parametrs(operatorStyleCreator, languageCode);
+            String newText = newText(languageCode, parametrs);
+
+            return new ReplaceEdit(issueOffset, node.getText().length() - 1, newText);
         }
         return null;
     }
 
-    private String parametr(int oldTextLength, int index, String text)
+    private String newText(ScriptVariant languageCode, String parametrs)
     {
-        String parametrs = ""; //$NON-NLS-1$
-        char[] originText = text.substring(index + oldTextLength + 1).toCharArray();
-        for (char c : originText)
+        String newText = ""; //$NON-NLS-1$
+        if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
         {
-            if (c != ")".charAt(0)) //$NON-NLS-1$
+            if (parametrs == "") //$NON-NLS-1$
             {
-                parametrs = parametrs + c;
+                newText = "ОбщегоНазначенияКлиентСервер.НовоеЗащищенноеСоединение"; //$NON-NLS-1$
+            }
+            else
+            {
+                newText = "ОбщегоНазначенияКлиентСервер.НовоеЗащищенноеСоединение" + "(" + parametrs + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             }
         }
-        return parametrs;
+        else if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.ENGLISH)
+        {
+            if (parametrs == "") //$NON-NLS-1$
+            {
+                newText = "CommonClientServer.NewSecureConnection"; //$NON-NLS-1$
+            }
+            else
+            {
+                newText = "CommonClientServer.NewSecureConnection" + "(" + parametrs + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            }
+        }
+        return newText;
+    }
+
+    private String parametrs(OperatorStyleCreator operatorStyleCreator, ScriptVariant languageCode)
+    {
+        if (operatorStyleCreator.getParams().isEmpty())
+        {
+            return ""; //$NON-NLS-1$
+        }
+        String text = NodeModelUtils.findActualNodeFor(operatorStyleCreator).getText();
+        String nameOperator = ""; //$NON-NLS-1$
+        if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
+        {
+            nameOperator = operatorStyleCreator.getType().getNameRu();
+        }
+        else if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.ENGLISH)
+        {
+            nameOperator = operatorStyleCreator.getType().getName();
+        }
+        int index = text.toLowerCase().indexOf(nameOperator.toLowerCase());
+
+        return text.substring(index + nameOperator.length() + 1, text.length() - 1);
     }
 }
