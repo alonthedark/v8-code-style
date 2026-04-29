@@ -23,6 +23,7 @@ import org.eclipse.xtext.resource.XtextResource;
 import com._1c.g5.v8.dt.bsl.model.OperatorStyleCreator;
 import com._1c.g5.v8.dt.core.platform.IV8Project;
 import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
+import com._1c.g5.v8.dt.mcore.util.McoreUtil;
 import com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant;
 import com.e1c.g5.v8.dt.bsl.check.qfix.IXtextBslModuleFixModel;
 import com.e1c.g5.v8.dt.bsl.check.qfix.SingleVariantXtextBslModuleFix;
@@ -83,24 +84,24 @@ public class RestrictionExecuteExternalCodeFix
         String newText = ""; //$NON-NLS-1$
         if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
         {
-            if (parametrs == "") //$NON-NLS-1$
+            if (parametrs.isEmpty())
             {
                 newText = "ОбщегоНазначенияКлиентСервер.НовоеЗащищенноеСоединение"; //$NON-NLS-1$
             }
             else
             {
-                newText = "ОбщегоНазначенияКлиентСервер.НовоеЗащищенноеСоединение" + "(" + parametrs + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                newText = "ОбщегоНазначенияКлиентСервер.НовоеЗащищенноеСоединение" + parametrs; //$NON-NLS-1$
             }
         }
         else if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.ENGLISH)
         {
-            if (parametrs == "") //$NON-NLS-1$
+            if (parametrs.isEmpty())
             {
                 newText = "CommonClientServer.NewSecureConnection"; //$NON-NLS-1$
             }
             else
             {
-                newText = "CommonClientServer.NewSecureConnection" + "(" + parametrs + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                newText = "CommonClientServer.NewSecureConnection" + parametrs; //$NON-NLS-1$
             }
         }
         return newText;
@@ -116,14 +117,22 @@ public class RestrictionExecuteExternalCodeFix
         String nameOperator = ""; //$NON-NLS-1$
         if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.RUSSIAN)
         {
-            nameOperator = operatorStyleCreator.getType().getNameRu();
+            nameOperator = McoreUtil.getTypeNameRu(operatorStyleCreator.getType());
         }
         else if (languageCode == com._1c.g5.v8.dt.metadata.mdclass.ScriptVariant.ENGLISH)
         {
-            nameOperator = operatorStyleCreator.getType().getName();
+            nameOperator = McoreUtil.getTypeName(operatorStyleCreator.getType());
         }
         int index = text.toLowerCase().indexOf(nameOperator.toLowerCase());
-
-        return text.substring(index + nameOperator.length() + 1, text.length() - 1);
+        int indexStartParametrs = 0;
+        char[] operator = text.substring(index + nameOperator.length(), text.length()).toCharArray();
+        if (operator[0] != '(')
+        {
+            while (operator[indexStartParametrs] != '(')
+            {
+                indexStartParametrs = indexStartParametrs + 1;
+            }
+        }
+        return text.substring(index + nameOperator.length() + indexStartParametrs, text.length());
     }
 }
