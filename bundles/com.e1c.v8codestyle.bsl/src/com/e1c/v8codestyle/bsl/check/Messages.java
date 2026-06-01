@@ -301,7 +301,7 @@ final class Messages
 
     public static String PasswordStorageSecureCheck_Issue;
 
-    public static String PasswordStorageSecureCheck_Parametr_Title;
+    public static String PasswordStorageSecureCheck_Parameter_Title;
 
     public static String QueryInLoop_check_query_in_infinite_loop;
     public static String QueryInLoop_description;

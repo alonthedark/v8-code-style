@@ -80,7 +80,7 @@ public class PasswordStorageSecureCheck
             .severity(IssueSeverity.MINOR)
             .issueType(IssueType.SECURITY)
             .parameter(ATTRIBUTE_NAME, String.class, DEFAULT_ATTRIBUTE,
-                Messages.PasswordStorageSecureCheck_Parametr_Title)
+                Messages.PasswordStorageSecureCheck_Parameter_Title)
             .module()
             .checkedObjectType(MODULE);
     }
@@ -107,7 +107,7 @@ public class PasswordStorageSecureCheck
                     if (!useSafeStorage(methods))
                     {
                         resultAceptor.addIssue(Messages.PasswordStorageSecureCheck_Issue,
-                            form/*, FormPackage.Literals.FORM*/);
+                            form);
                     }
                 }
             }
@@ -149,31 +149,30 @@ public class PasswordStorageSecureCheck
             if ("ПриСозданииНаСервере".equalsIgnoreCase(method.getName()) || //$NON-NLS-1$
                 "OnCreateAtServer".equalsIgnoreCase(method.getName())) //$NON-NLS-1$
             {
-                List<Statement> statements = method.allStatements();
-                if (findCall(statements, method.getName()))
-                {
-                    if (checkStatements(statements))
-                    {
-                        getPassword = true;
-                    }
-                }
+                getPassword = checkStatement(method);
             }
             else if ("ПриЗаписиНаСервере".equalsIgnoreCase(method.getName()) //$NON-NLS-1$
                 || "OnWriteAtServer".equalsIgnoreCase(method.getName())) //$NON-NLS-1$
             {
-                List<Statement> statements = method.allStatements();
-                if (findCall(statements, method.getName()))
-                {
-                    if (checkStatements(statements))
-                    {
-                        setPassword = true;
-                    }
-                }
+                setPassword = checkStatement(method);
             }
         }
         if (getPassword && setPassword)
         {
             return true;
+        }
+        return false;
+    }
+
+    private boolean checkStatement(Method method)
+    {
+        List<Statement> statements = method.allStatements();
+        if (findCall(statements, method.getName()))
+        {
+            if (checkStatements(statements))
+            {
+                return true;
+            }
         }
         return false;
     }
@@ -221,11 +220,10 @@ public class PasswordStorageSecureCheck
         if (statement instanceof SimpleStatement simpleStatement)
         {
             Expression leftExpression = simpleStatement.getLeft();
-            if (!(leftExpression instanceof Invocation))
+            if (!(leftExpression instanceof Invocation invocation))
             {
                 return false;
             }
-            Invocation invocation = (Invocation)leftExpression;
             String name = invocation.getMethodAccess().getName();
 
             if (("УстановитьПривилегированныйРежим".equalsIgnoreCase(name) //$NON-NLS-1$

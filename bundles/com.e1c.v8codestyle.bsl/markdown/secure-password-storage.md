@@ -12,11 +12,11 @@ making it vulnerable to interception.
 ## Compliant Solution
 Procedure OnCreateAtServer()
 
-SetPrivilegedMode(True);
+ SetPrivilegedMode(True);
  Passwords = Common.ReadDataFromSecureStorage(Object.Ref, "Password, SMTPPassword");
  SetPrivilegedMode(False);
 
-Password = ?(ValueIsFilled(Passwords.Password), ThisObject.UUID, "");
+ Password = ?(ValueIsFilled(Passwords.Password), ThisObject.UUID, "");
  SMTPPassword = ?(ValueIsFilled(Passwords.SMTPPassword), ThisObject.UUID, "");
 
 EndProcedure
