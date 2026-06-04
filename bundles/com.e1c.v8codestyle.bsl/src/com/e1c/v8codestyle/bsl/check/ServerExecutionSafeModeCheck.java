@@ -31,6 +31,7 @@ import com._1c.g5.v8.dt.bsl.model.Expression;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
 import com._1c.g5.v8.dt.bsl.model.Invocation;
 import com._1c.g5.v8.dt.bsl.model.LoopStatement;
+import com._1c.g5.v8.dt.bsl.model.PreprocessorItemStatements;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
 import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
@@ -137,21 +138,25 @@ public class ServerExecutionSafeModeCheck
 
     private Optional<Boolean> isSafeModeEnabledForContainer(EObject container, EObject eObject)
     {
-        if (container instanceof IfStatement)
+        if (container instanceof PreprocessorItemStatements ifPrepStat)
         {
-            return isSafeModeEnabledForIfStatement((IfStatement)container, eObject);
+            return isSafeModeEnabledForIfPreprocessor(ifPrepStat, eObject);
         }
-        else if (container instanceof LoopStatement)
+        else if (container instanceof IfStatement ifStatementContainer)
         {
-            return isSafeModeEnabledForLoopStatement((LoopStatement)container, eObject);
+            return isSafeModeEnabledForIfStatement(ifStatementContainer, eObject);
         }
-        else if (container instanceof TryExceptStatement)
+        else if (container instanceof LoopStatement loopStatementContainer)
         {
-            return isSafeModeEnabledForTryExceptStatement((TryExceptStatement)container, eObject);
+            return isSafeModeEnabledForLoopStatement(loopStatementContainer, eObject);
         }
-        else if (container instanceof Block)
+        else if (container instanceof TryExceptStatement tryExceptStatementContainer)
         {
-            return isSafeModeEnabledForBlock((Block)container, eObject);
+            return isSafeModeEnabledForTryExceptStatement(tryExceptStatementContainer, eObject);
+        }
+        else if (container instanceof Block blockContainer)
+        {
+            return isSafeModeEnabledForBlock(blockContainer, eObject);
         }
 
         return Optional.empty();
@@ -208,6 +213,13 @@ public class ServerExecutionSafeModeCheck
     private Optional<Boolean> isSafeModeEnabledForBlock(Block block, EObject eObject)
     {
         List<Statement> statements = block.allStatements();
+        return isSafeModeEnabledInStatementList(statements, eObject);
+    }
+
+    private Optional<Boolean> isSafeModeEnabledForIfPreprocessor(PreprocessorItemStatements ifPreprocessor,
+        EObject eObject)
+    {
+        List<Statement> statements = ifPreprocessor.getStatements();
         return isSafeModeEnabledInStatementList(statements, eObject);
     }
 
