@@ -157,11 +157,7 @@ public class PasswordStorageSecureCheck
                 setPassword = checkStatement(method);
             }
         }
-        if (getPassword && setPassword)
-        {
-            return true;
-        }
-        return false;
+        return getPassword && setPassword;
     }
 
     private boolean checkStatement(Method method)
