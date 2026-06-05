@@ -106,8 +106,7 @@ public class PasswordStorageSecureCheck
                 {
                     if (!useSafeStorage(methods))
                     {
-                        resultAceptor.addIssue(Messages.PasswordStorageSecureCheck_Issue,
-                            form);
+                        resultAceptor.addIssue(Messages.PasswordStorageSecureCheck_Issue, form);
                     }
                 }
             }
@@ -146,13 +145,11 @@ public class PasswordStorageSecureCheck
         boolean setPassword = false;
         for (Method method : methods)
         {
-            if ("ПриСозданииНаСервере".equalsIgnoreCase(method.getName()) || //$NON-NLS-1$
-                "OnCreateAtServer".equalsIgnoreCase(method.getName())) //$NON-NLS-1$
+            if (checkNameOnCreateAtServer(method.getName()))
             {
                 getPassword = checkStatement(method);
             }
-            else if ("ПриЗаписиНаСервере".equalsIgnoreCase(method.getName()) //$NON-NLS-1$
-                || "OnWriteAtServer".equalsIgnoreCase(method.getName())) //$NON-NLS-1$
+            else if ((checkNameOnWriteAtServer(method.getName())))
             {
                 setPassword = checkStatement(method);
             }
@@ -177,13 +174,12 @@ public class PasswordStorageSecureCheck
     {
         String checkCall = ""; //$NON-NLS-1$
         String checkCallEn = ""; //$NON-NLS-1$
-        if ("ПриСозданииНаСервере".equalsIgnoreCase(name) || //$NON-NLS-1$
-            "OnCreateAtServer".equalsIgnoreCase(name)) //$NON-NLS-1$
+        if (checkNameOnCreateAtServer(name))
         {
             checkCall = "общегоназначения.прочитатьданныеизбезопасногохранилища"; //$NON-NLS-1$
             checkCallEn = "common.readdatafromsecurestorage"; //$NON-NLS-1$
         }
-        else if ("ПриЗаписиНаСервере".equalsIgnoreCase(name) || "OnWriteAtServer".equalsIgnoreCase(name)) //$NON-NLS-1$ //$NON-NLS-2$
+        else if (checkNameOnWriteAtServer(name))
         {
             checkCall = "общегоназначения.записатьданныевбезопасноехранилище"; //$NON-NLS-1$
             checkCallEn = "common.writedatatosecurestorage"; //$NON-NLS-1$
@@ -195,6 +191,26 @@ public class PasswordStorageSecureCheck
             {
                 return true;
             }
+        }
+        return false;
+    }
+
+    private boolean checkNameOnCreateAtServer(String name)
+    {
+        if ("ПриСозданииНаСервере".equalsIgnoreCase(name) || //$NON-NLS-1$
+            "OnCreateAtServer".equalsIgnoreCase(name)) //$NON-NLS-1$
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean checkNameOnWriteAtServer(String name)
+    {
+        if ("ПриЗаписиНаСервере".equalsIgnoreCase(name) || "OnWriteAtServer".equalsIgnoreCase(name)) //$NON-NLS-1$ //$NON-NLS-2$
+        {
+            return true;
         }
         return false;
     }
