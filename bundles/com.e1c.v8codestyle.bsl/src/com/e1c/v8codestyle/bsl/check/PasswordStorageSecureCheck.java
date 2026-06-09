@@ -197,22 +197,12 @@ public class PasswordStorageSecureCheck
 
     private boolean checkNameOnCreateAtServer(String name)
     {
-        if ("ПриСозданииНаСервере".equalsIgnoreCase(name) || //$NON-NLS-1$
-            "OnCreateAtServer".equalsIgnoreCase(name)) //$NON-NLS-1$
-        {
-            return true;
-        }
-
-        return false;
+        return "ПриСозданииНаСервере".equalsIgnoreCase(name) || "OnCreateAtServer".equalsIgnoreCase(name); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private boolean checkNameOnWriteAtServer(String name)
     {
-        if ("ПриЗаписиНаСервере".equalsIgnoreCase(name) || "OnWriteAtServer".equalsIgnoreCase(name)) //$NON-NLS-1$ //$NON-NLS-2$
-        {
-            return true;
-        }
-        return false;
+        return "ПриЗаписиНаСервере".equalsIgnoreCase(name) || "OnWriteAtServer".equalsIgnoreCase(name); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private boolean checkStatements(List<Statement> statements)
