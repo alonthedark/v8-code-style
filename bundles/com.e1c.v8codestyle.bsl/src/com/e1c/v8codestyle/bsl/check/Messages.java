@@ -109,6 +109,12 @@ final class Messages
 
     public static String CommonModuleNamedSelfReferenceCheck_title;
 
+    public static String CommonModuleServerCallCheck_Description;
+
+    public static String CommonModuleServerCallCheck_Title;
+
+    public static String CommonModuleServerCallCheck_Issue;
+
     public static String ConsecutiveEmptyLines_Description;
 
     public static String ConsecutiveEmptyLines_Parameter_title;
@@ -174,6 +180,14 @@ final class Messages
     public static String RedundantExportCheck_Exclude_title;
 
     public static String RedundantExportCheck_Unused_export_method__0;
+
+    public static String RestrictionExecuteExternalCodeCheck_Description;
+
+    public static String RestrictionExecuteExternalCodeCheck_Issue;
+
+    public static String RestrictionExecuteExternalCodeCheck_Title;
+
+    public static String RestrictionExecuteExternalCodeCheck_Parametr_Title;
 
     public static String ExportMethodInCommandFormModuleCheck_CheckClientMethodForm;
 
@@ -330,6 +344,12 @@ final class Messages
     public static String ServerExecutionSafeModeCheck_execute_issue;
 
     public static String ServerExecutionSafeModeCheck_title;
+
+    public static String SecuritySoftwareCall_Description;
+
+    public static String SecuritySoftwareCall_Title;
+
+    public static String SecuritySoftwareCall_Issue;
 
     public static String StructureCtorTooManyKeysCheck_description;
     public static String StructureCtorTooManyKeysCheck_Maximum_structure_constructor_keys;
