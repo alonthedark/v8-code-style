@@ -31,6 +31,7 @@ import com._1c.g5.v8.dt.core.platform.IBmModelManager;
 import com._1c.g5.v8.dt.core.platform.IResourceLookup;
 import com._1c.g5.v8.dt.core.platform.IV8Project;
 import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
+import com._1c.g5.v8.dt.mcore.util.Environments;
 import com._1c.g5.v8.dt.mcore.util.McoreUtil;
 import com._1c.g5.v8.dt.platform.IEObjectTypeNames;
 import com.e1c.g5.dt.core.api.naming.INamingService;
@@ -50,7 +51,7 @@ public class StructureCtorValueTypeCheck
     extends AbstractTypeCheck
 {
 
-    private static final String CHECK_ID = "structure-consructor-value-type"; //$NON-NLS-1$
+    private static final String CHECK_ID = "structure-constructor-value-type"; //$NON-NLS-1$
 
     /**
      * Instantiates a new structure constructor value type check.
@@ -102,6 +103,12 @@ public class StructureCtorValueTypeCheck
             return;
         }
 
+        Environments actualEnvs = getActualEnvironments(osc);
+        if (actualEnvs.isEmpty())
+        {
+            return;
+        }
+
         StringLiteral literal = (StringLiteral)osc.getParams().get(0);
 
         String content = String.join("", literal.lines(true)); //$NON-NLS-1$
@@ -119,7 +126,7 @@ public class StructureCtorValueTypeCheck
             if (totalParams > i && osc.getParams().get(i + 1) != null)
             {
                 Expression param = osc.getParams().get(i + 1);
-                if (isEmptyTypes(param, bmTransaction))
+                if (isEmptyTypes(param, actualEnvs, bmTransaction))
                 {
                     param = param instanceof EmptyExpression ? literal : param;
                     String message = MessageFormat.format(
