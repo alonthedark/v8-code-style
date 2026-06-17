@@ -70,7 +70,7 @@ public class EventHandlerBooleanParamCheck
 {
     private static final String DELIMITER = ","; //$NON-NLS-1$
 
-    private static final String CHECK_ID = "event-heandler-boolean-param"; //$NON-NLS-1$
+    private static final String CHECK_ID = "event-handler-boolean-param"; //$NON-NLS-1$
 
     private static final String PARAM_CHECK_EVENT_ONLY = "checkEventOnly"; //$NON-NLS-1$
 
