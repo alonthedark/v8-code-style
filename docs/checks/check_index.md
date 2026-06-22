@@ -59,7 +59,7 @@
 | [document-post-in-privileged-mode](../../bundles/com.e1c.v8codestyle.md/markdown/ru/document-post-in-privileged-mode.md) | В документе, предполагающем проведение, не установлен флаг "Привилегированный режим при проведении / отмене проведения" |
 | [dynamic-access-method-not-found](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/dynamic-access-method-not-found.md) | Метод в объекте не найден |
 | [empty-except-statement](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/empty-except-statement.md) | Конструкция "Попытка...Исключение...КонецПопытки" не содержит кода в исключении |
-| [event-heandler-boolean-param](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/event-heandler-boolean-param.md) | Использование булевого параметра обработчика события |
+| [event-handler-boolean-param](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/event-handler-boolean-param.md) | Использование булевого параметра обработчика события |
 | [export-method-in-command-form-module](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/export-method-in-command-form-module.md) | Ограничения на использование экспортных процедур и функций в модуле команд и форм |
 | [export-procedure-missing-comment](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/export-procedure-missing-comment.md) | Отсутствует комментарий к экспортной процедуре (функции) |
 | [extension-md-object-prefix](../../bundles/com.e1c.v8codestyle.md/markdown/ru/extension-md-object-prefix.md) | У имени объекта отсутствует префикс расширения |

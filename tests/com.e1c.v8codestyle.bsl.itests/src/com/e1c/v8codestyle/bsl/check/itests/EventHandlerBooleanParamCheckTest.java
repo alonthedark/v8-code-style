@@ -49,7 +49,7 @@ public class EventHandlerBooleanParamCheckTest
     extends SingleProjectReadOnlyCheckTestBase
 {
 
-    private static final String CHECK_ID = "event-heandler-boolean-param";
+    private static final String CHECK_ID = "event-handler-boolean-param";
 
     private static final String PARAM_CHECK_EVENT_ONLY = "checkEventOnly"; //$NON-NLS-1$
 

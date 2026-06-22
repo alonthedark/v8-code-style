@@ -36,7 +36,7 @@
 | [doc-comment-use-minus](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/doc-comment-use-minus.md) | Использование только дефис-минуса в документирующем комментарии |
 | [dynamic-access-method-not-found](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/dynamic-access-method-not-found.md) | Метод в объекте не найден |
 | [empty-except-statement](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/empty-except-statement.md) | Конструкция "Попытка...Исключение...КонецПопытки" не содержит кода в исключении |
-| [event-heandler-boolean-param](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/event-heandler-boolean-param.md) | Использование булевого параметра обработчика события |
+| [event-handler-boolean-param](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/event-handler-boolean-param.md) | Использование булевого параметра обработчика события |
 | [export-method-in-command-form-module](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/export-method-in-command-form-module.md) | Ограничения на использование экспортных процедур и функций в модуле команд и форм |
 | [export-procedure-missing-comment](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/export-procedure-missing-comment.md) | Отсутствует комментарий к экспортной процедуре (функции) |
 | [extension-method-prefix](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/extension-method-prefix.md) | У метода отсутствует префикс расширения |
