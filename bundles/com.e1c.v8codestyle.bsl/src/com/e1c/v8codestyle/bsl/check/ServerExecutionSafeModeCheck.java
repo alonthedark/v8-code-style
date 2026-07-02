@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2022, 1C-Soft LLC and others.
+ * Copyright (C) 2026, 1C-Soft LLC and others.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -31,8 +31,10 @@ import com._1c.g5.v8.dt.bsl.model.Expression;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
 import com._1c.g5.v8.dt.bsl.model.Invocation;
 import com._1c.g5.v8.dt.bsl.model.LoopStatement;
+import com._1c.g5.v8.dt.bsl.model.PreprocessorItemStatements;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
+import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.TryExceptStatement;
 import com._1c.g5.v8.dt.mcore.Environmental;
 import com._1c.g5.v8.dt.mcore.util.Environment;
@@ -136,21 +138,25 @@ public class ServerExecutionSafeModeCheck
 
     private Optional<Boolean> isSafeModeEnabledForContainer(EObject container, EObject eObject)
     {
-        if (container instanceof IfStatement)
+        if (container instanceof PreprocessorItemStatements ifPrepStat)
         {
-            return isSafeModeEnabledForIfStatement((IfStatement)container, eObject);
+            return isSafeModeEnabledForIfPreprocessor(ifPrepStat, eObject);
         }
-        else if (container instanceof LoopStatement)
+        else if (container instanceof IfStatement ifStatementContainer)
         {
-            return isSafeModeEnabledForLoopStatement((LoopStatement)container, eObject);
+            return isSafeModeEnabledForIfStatement(ifStatementContainer, eObject);
         }
-        else if (container instanceof TryExceptStatement)
+        else if (container instanceof LoopStatement loopStatementContainer)
         {
-            return isSafeModeEnabledForTryExceptStatement((TryExceptStatement)container, eObject);
+            return isSafeModeEnabledForLoopStatement(loopStatementContainer, eObject);
         }
-        else if (container instanceof Block)
+        else if (container instanceof TryExceptStatement tryExceptStatementContainer)
         {
-            return isSafeModeEnabledForBlock((Block)container, eObject);
+            return isSafeModeEnabledForTryExceptStatement(tryExceptStatementContainer, eObject);
+        }
+        else if (container instanceof Block blockContainer)
+        {
+            return isSafeModeEnabledForBlock(blockContainer, eObject);
         }
 
         return Optional.empty();
@@ -207,6 +213,13 @@ public class ServerExecutionSafeModeCheck
     private Optional<Boolean> isSafeModeEnabledForBlock(Block block, EObject eObject)
     {
         List<Statement> statements = block.allStatements();
+        return isSafeModeEnabledInStatementList(statements, eObject);
+    }
+
+    private Optional<Boolean> isSafeModeEnabledForIfPreprocessor(PreprocessorItemStatements ifPreprocessor,
+        EObject eObject)
+    {
+        List<Statement> statements = ifPreprocessor.getStatements();
         return isSafeModeEnabledInStatementList(statements, eObject);
     }
 
@@ -376,10 +389,16 @@ public class ServerExecutionSafeModeCheck
 
     private boolean isEval(EObject eObject)
     {
-        if (eObject instanceof Invocation)
+        if (eObject instanceof Invocation invocation)
         {
-            String name = ((Invocation)eObject).getMethodAccess().getName();
-            return EVAL_RU.equalsIgnoreCase(name) || EVAL.equalsIgnoreCase(name);
+            String name = invocation.getMethodAccess().getName();
+            if (invocation.getMethodAccess() instanceof StaticFeatureAccess)
+            {
+                if (EVAL_RU.equalsIgnoreCase(name) || EVAL.equalsIgnoreCase(name))
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }

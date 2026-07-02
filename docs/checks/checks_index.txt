@@ -44,7 +44,7 @@ doc-comment-use-minus
 document-post-in-privileged-mode
 dynamic-access-method-not-found
 empty-except-statement
-event-heandler-boolean-param
+event-handler-boolean-param
 export-method-in-command-form-module
 export-procedure-missing-comment
 extension-md-object-prefix
@@ -143,8 +143,8 @@ rollback-transaction
 scheduled-job-periodicity-too-short
 server-execution-safe-mode
 statement-type-change
-structure-consructor-too-many-keys
-structure-consructor-value-type
+structure-constructor-too-many-keys
+structure-constructor-value-type
 subsystem-synonym-too-long
 typed-value-adding-to-untyped-collection
 unknown-form-parameter-access

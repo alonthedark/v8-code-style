@@ -36,7 +36,7 @@
 | [doc-comment-use-minus](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/doc-comment-use-minus.md) | Использование только дефис-минуса в документирующем комментарии |
 | [dynamic-access-method-not-found](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/dynamic-access-method-not-found.md) | Метод в объекте не найден |
 | [empty-except-statement](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/empty-except-statement.md) | Конструкция "Попытка...Исключение...КонецПопытки" не содержит кода в исключении |
-| [event-heandler-boolean-param](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/event-heandler-boolean-param.md) | Использование булевого параметра обработчика события |
+| [event-handler-boolean-param](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/event-handler-boolean-param.md) | Использование булевого параметра обработчика события |
 | [export-method-in-command-form-module](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/export-method-in-command-form-module.md) | Ограничения на использование экспортных процедур и функций в модуле команд и форм |
 | [export-procedure-missing-comment](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/export-procedure-missing-comment.md) | Отсутствует комментарий к экспортной процедуре (функции) |
 | [extension-method-prefix](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/extension-method-prefix.md) | У метода отсутствует префикс расширения |
@@ -84,8 +84,8 @@
 | [rollback-transaction](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/rollback-transaction.md) | Проверка нарушения схемы работы с транзакциями |
 | [server-execution-safe-mode](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/server-execution-safe-mode.md) | Отсутствует включение безопасного режима перед вызовом метода "Выполнить" или "Вычислить" |
 | [statement-type-change](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/statement-type-change.md) | Утверждение меняет тип |
-| [structure-consructor-too-many-keys](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/structure-consructor-too-many-keys.md) | Конструктор структуры содержит слишком много ключей |
-| [structure-consructor-value-type](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/structure-consructor-value-type.md) | Типизация значений в конструкторе структуры |
+| [structure-constructor-too-many-keys](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/structure-constructor-too-many-keys.md) | Конструктор структуры содержит слишком много ключей |
+| [structure-constructor-value-type](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/structure-constructor-value-type.md) | Типизация значений в конструкторе структуры |
 | [typed-value-adding-to-untyped-collection](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/typed-value-adding-to-untyped-collection.md) | Добавление типизированного значения в не типизированную коллекцию |
 | [unknown-form-parameter-access](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/unknown-form-parameter-access.md) | Обращение к несуществующему параметру формы |
 | [use-goto-operator](../../bundles/com.e1c.v8codestyle.bsl/markdown/ru/use-goto-operator.md) | Используется оператор Перейти |
