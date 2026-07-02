@@ -213,6 +213,12 @@ final class Messages
 
     public static String ExtensionMethodPrefixCheck_Title;
 
+    public static String LoacalizationNstrCheck_Title;
+
+    public static String LoacalizationNstrCheck_Description;
+
+    public static String LoacalizationNstrCheck_Issue;
+
     public static String ManagerModuleNamedSelfReferenceCheck_description;
 
     public static String ManagerModuleNamedSelfReferenceCheck_issue;
