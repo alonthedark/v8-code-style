@@ -54,7 +54,8 @@ public class LoacalizationNstrCheck
 
     private static final Set<String> IMMUTABLE_MAP_MESSAGES =
         Set.of("показатьпредупреждение", "showmessagebox", "сообщение", "message", "сообщить", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$
-            "показатьоповещениепользователя", "showusernotification"); //$NON-NLS-1$ //$NON-NLS-2$
+            "показатьоповещениепользователя", "showusernotification", "ПоказатьВопрос", "ShowQueryBox", "Состояние", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$ //$NON-NLS-5$
+            "Status"); //$NON-NLS-1$
 
     @Override
     public String getCheckId()
@@ -133,13 +134,15 @@ public class LoacalizationNstrCheck
     private int numberParametr(String name)
     {
         if ("ПоказатьПредупреждение".equalsIgnoreCase(name) //$NON-NLS-1$
-            || "ShowMessageBox".equalsIgnoreCase(name)) //$NON-NLS-1$
+            || "ShowMessageBox".equalsIgnoreCase(name) || "ПоказатьВопрос".equalsIgnoreCase(name) //$NON-NLS-1$//$NON-NLS-2$
+            || "ShowQueryBox".equalsIgnoreCase(name)) //$NON-NLS-1$
         {
             return 1;
         }
         else if ("сообщение".equalsIgnoreCase(name) || "Сообщить".equalsIgnoreCase(name) //$NON-NLS-1$//$NON-NLS-2$
             || "Message".equalsIgnoreCase(name) || "ПоказатьОповещениеПользователя".equalsIgnoreCase(name) //$NON-NLS-1$ //$NON-NLS-2$
-            || "ShowUsernotification".equalsIgnoreCase(name)) //$NON-NLS-1$
+            || "ShowUsernotification".equalsIgnoreCase(name) || "Состояние".equalsIgnoreCase(name) //$NON-NLS-1$//$NON-NLS-2$
+            || "Status".equalsIgnoreCase(name)) //$NON-NLS-1$
         {
             return 0;
         }
