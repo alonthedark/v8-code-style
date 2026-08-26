@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
+import com._1c.g5.v8.dt.bsl.model.Conditional;
 import com._1c.g5.v8.dt.bsl.model.Expression;
 import com._1c.g5.v8.dt.bsl.model.ForStatement;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
@@ -39,11 +40,11 @@ import com.e1c.v8codestyle.check.StandardCheckExtension;
 import com.e1c.v8codestyle.internal.bsl.BslPlugin;
 
 /**
- * Checks string localization use Nstr.
+ * Checks string localization use NStr.
  *
  *  @author Ivan Sergeev
  */
-public class LoacalizationNstrCheck
+public class LocalizationNstrCheck
     extends AbstractModuleStructureCheck
 {
     private static final String CHECK_ID = "nstr-localization"; //$NON-NLS-1$
@@ -85,18 +86,18 @@ public class LoacalizationNstrCheck
     @Override
     protected void configureCheck(CheckConfigurer builder)
     {
-        builder.title(Messages.LoacalizationNstrCheck_Title)
-            .description(Messages.LoacalizationNstrCheck_Description)
+        builder.title(Messages.LocalizationNstrCheck_Title)
+            .description(Messages.LocalizationNstrCheck_Description)
             .complexity(CheckComplexity.NORMAL)
             .severity(IssueSeverity.MINOR)
             .issueType(IssueType.CODE_STYLE)
             .extension(new ModuleTopObjectNameFilterExtension())
             .extension(new StandardCheckExtension(761, getCheckId(), BslPlugin.PLUGIN_ID))
-            .parameter(MESSAGE_NAME, String.class, DEFAULT_MESSAGES, Messages.LoacalizationNstrCheck_Parameter_Title)
+            .parameter(MESSAGE_NAME, String.class, DEFAULT_MESSAGES, Messages.LocalizationNstrCheck_Parameter_Title)
             .parameter(MESSAGE_NAME_ONE, String.class, DEFAULT_MESSAGES_NUMBER_ONE,
-                Messages.LoacalizationNstrCheck_Parameter_Title_One)
+                Messages.LocalizationNstrCheck_Parameter_Title_One)
             .parameter(MESSAGE_NAME_ZERO, String.class, DEFAULT_MESSAGES_NUMBER_ZERO,
-                Messages.LoacalizationNstrCheck_Parameter_Title_Zero)
+                Messages.LocalizationNstrCheck_Parameter_Title_Zero)
             .module()
             .checkedObjectType(INVOCATION);
     }
@@ -122,7 +123,7 @@ public class LoacalizationNstrCheck
             Expression expression = params.get(numberParam);
             if (expression instanceof StringLiteral stingLiteral)
             {
-                resultAceptor.addIssue(Messages.LoacalizationNstrCheck_Issue);
+                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue);
             }
             else if (expression instanceof StaticFeatureAccess sfa)
             {
@@ -131,7 +132,7 @@ public class LoacalizationNstrCheck
                 List<Statement> statements = method.allStatements();
                 if (!checkSfa(name, statements))
                 {
-                    resultAceptor.addIssue(Messages.LoacalizationNstrCheck_Issue);
+                    resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue);
                 }
             }
             else if (expression instanceof Invocation invocationParam)
@@ -148,7 +149,7 @@ public class LoacalizationNstrCheck
                             String invName = inv.getMethodAccess().getName();
                             if (!(NSTR_RU.equalsIgnoreCase(invName) || NSTR.equalsIgnoreCase(invName)))
                             {
-                                resultAceptor.addIssue(Messages.LoacalizationNstrCheck_Issue);
+                                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue);
                             }
                         }
                     }
@@ -192,6 +193,15 @@ public class LoacalizationNstrCheck
                 if (checkSfa(name, elseStatements))
                 {
                     return true;
+                }
+                List<Conditional> elseIfParts = ifStatement.getElsIfParts();
+                for (Conditional conditional : elseIfParts)
+                {
+                    List<Statement> statementsElsIf = conditional.getStatements();
+                    if (checkSfa(name, statementsElsIf))
+                    {
+                        return true;
+                    }
                 }
             }
             else if (statement instanceof ForStatement forStatement)

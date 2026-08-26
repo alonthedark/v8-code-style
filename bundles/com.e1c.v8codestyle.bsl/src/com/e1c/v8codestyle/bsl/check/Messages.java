@@ -227,17 +227,17 @@ final class Messages
 
     public static String ExtensionMethodPrefixCheck_Title;
 
-    public static String LoacalizationNstrCheck_Title;
+    public static String LocalizationNstrCheck_Title;
 
-    public static String LoacalizationNstrCheck_Description;
+    public static String LocalizationNstrCheck_Description;
 
-    public static String LoacalizationNstrCheck_Issue;
+    public static String LocalizationNstrCheck_Issue;
 
-    public static String LoacalizationNstrCheck_Parameter_Title;
+    public static String LocalizationNstrCheck_Parameter_Title;
 
-    public static String LoacalizationNstrCheck_Parameter_Title_One;
+    public static String LocalizationNstrCheck_Parameter_Title_One;
 
-    public static String LoacalizationNstrCheck_Parameter_Title_Zero;
+    public static String LocalizationNstrCheck_Parameter_Title_Zero;
 
     public static String ManagerModuleNamedSelfReferenceCheck_description;
 

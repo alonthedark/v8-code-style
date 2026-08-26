@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.EcoreUtil2;
 
+import com._1c.g5.v8.dt.bsl.model.Conditional;
 import com._1c.g5.v8.dt.bsl.model.DynamicFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.EmptyStatement;
 import com._1c.g5.v8.dt.bsl.model.ForStatement;
@@ -31,7 +32,6 @@ import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
 import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.StringLiteral;
-import com._1c.g5.v8.dt.bsl.model.util.BslUtil;
 import com._1c.g5.v8.dt.form.model.Form;
 import com._1c.g5.v8.dt.form.model.FormAttribute;
 import com._1c.g5.v8.dt.form.model.FormAttributeColumn;
@@ -45,11 +45,11 @@ import com.e1c.v8codestyle.check.StandardCheckExtension;
 import com.e1c.v8codestyle.internal.bsl.BslPlugin;
 
 /**
- * Checks that variable is self assign.
+ * Checks string localization use NStr.
  *
  *  @author Ivan Sergeev
  */
-public class LoacalizationFormNstrCheck
+public class LocalizationFormNstrCheck
     extends AbstractModuleStructureCheck
 {
     private static final String CHECK_ID = "nstr-form-localization"; //$NON-NLS-1$
@@ -67,8 +67,8 @@ public class LoacalizationFormNstrCheck
     @Override
     protected void configureCheck(CheckConfigurer builder)
     {
-        builder.title(Messages.LoacalizationNstrCheck_Title)
-            .description(Messages.LoacalizationNstrCheck_Description)
+        builder.title(Messages.LocalizationNstrCheck_Title)
+            .description(Messages.LocalizationNstrCheck_Description)
             .complexity(CheckComplexity.NORMAL)
             .severity(IssueSeverity.MINOR)
             .issueType(IssueType.CODE_STYLE)
@@ -95,7 +95,7 @@ public class LoacalizationFormNstrCheck
             {
                 if ("String".equalsIgnoreCase(McoreUtil.getTypeName(type))) //$NON-NLS-1$
                 {
-                    List<Method> methods = BslUtil.allMethods(formModule);
+                    List<Method> methods = formModule.allMethods();
                     for (Method method : methods)
                     {
                         List<Statement> statements = method.allStatements();
@@ -104,7 +104,7 @@ public class LoacalizationFormNstrCheck
                         {
                             if (checkStatement(statement))
                             {
-                                resultAceptor.addIssue(Messages.LoacalizationNstrCheck_Issue, statement);
+                                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, statement);
                             }
                         }
                     }
@@ -112,7 +112,7 @@ public class LoacalizationFormNstrCheck
                 else if ("ValueTable".equalsIgnoreCase(McoreUtil.getTypeName(type))) //$NON-NLS-1$
                 {
                     List<FormAttributeColumn> columns = attribute.getColumns();
-                    List<Method> methods = BslUtil.allMethods(formModule);
+                    List<Method> methods = formModule.allMethods();
                     for (FormAttributeColumn column : columns)
                     {
                         for (Method method : methods)
@@ -123,7 +123,7 @@ public class LoacalizationFormNstrCheck
                             {
                                 if (checkStatement(statement))
                                 {
-                                    resultAceptor.addIssue(Messages.LoacalizationNstrCheck_Issue, statement);
+                                    resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, statement);
                                 }
                             }
                         }
@@ -193,6 +193,16 @@ public class LoacalizationFormNstrCheck
                 if (stat != null)
                 {
                     return stat;
+                }
+                List<Conditional> elseIfParts = ifStatement.getElsIfParts();
+                for (Conditional conditional : elseIfParts)
+                {
+                    List<Statement> statementsElsIf = conditional.getStatements();
+                    stat = searchStatement(statementsElsIf, attributeName);
+                    if (stat != null)
+                    {
+                        return stat;
+                    }
                 }
             }
             else if (statement instanceof ForStatement forStatement)
