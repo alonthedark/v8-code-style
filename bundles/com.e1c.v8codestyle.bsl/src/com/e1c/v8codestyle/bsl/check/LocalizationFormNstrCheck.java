@@ -14,13 +14,13 @@ package com.e1c.v8codestyle.bsl.check;
 
 import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.MODULE;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.xtext.EcoreUtil2;
 
 import com._1c.g5.v8.dt.bsl.model.Conditional;
-import com._1c.g5.v8.dt.bsl.model.DynamicFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.EmptyStatement;
 import com._1c.g5.v8.dt.bsl.model.ForStatement;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
@@ -58,6 +58,8 @@ public class LocalizationFormNstrCheck
 
     private static final String NSTR_RU = "НСтр"; //$NON-NLS-1$
 
+    private static final String STRING_TEXT = "String"; //$NON-NLS-1$
+
     @Override
     public String getCheckId()
     {
@@ -88,43 +90,34 @@ public class LocalizationFormNstrCheck
         }
         Form form = (Form)formModule.getOwner();
         List<FormAttribute> attributes = form.getAttributes();
+        List<Method> methods = formModule.allMethods();
+
+        Map<Method, Map<String, Statement>> assignmentsByMethod = new HashMap<>();
+        for (Method method : methods)
+        {
+            assignmentsByMethod.put(method, collectAssignments(method.allStatements()));
+        }
+
         for (FormAttribute attribute : attributes)
         {
             List<TypeItem> types = attribute.getValueType().getTypes();
             for (TypeItem type : types)
             {
-                if ("String".equalsIgnoreCase(McoreUtil.getTypeName(type))) //$NON-NLS-1$
+                if (STRING_TEXT.equalsIgnoreCase(McoreUtil.getTypeName(type)))
                 {
-                    List<Method> methods = formModule.allMethods();
-                    for (Method method : methods)
-                    {
-                        List<Statement> statements = method.allStatements();
-                        Statement statement = searchStatement(statements, attribute.getName());
-                        if (statement != null)
-                        {
-                            if (checkStatement(statement))
-                            {
-                                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, statement);
-                            }
-                        }
-                    }
+                    checkAttributeName(attribute.getName(), methods, assignmentsByMethod, resultAceptor);
                 }
                 else if ("ValueTable".equalsIgnoreCase(McoreUtil.getTypeName(type))) //$NON-NLS-1$
                 {
                     List<FormAttributeColumn> columns = attribute.getColumns();
-                    List<Method> methods = formModule.allMethods();
                     for (FormAttributeColumn column : columns)
                     {
-                        for (Method method : methods)
+                        List<TypeItem> typesColumn = column.getValueType().getTypes();
+                        for (TypeItem typeColumn : typesColumn)
                         {
-                            List<Statement> statements = method.allStatements();
-                            Statement statement = searchStatement(statements, column.getName());
-                            if (statement != null)
+                            if (STRING_TEXT.equalsIgnoreCase(McoreUtil.getTypeName(typeColumn)))
                             {
-                                if (checkStatement(statement))
-                                {
-                                    resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, statement);
-                                }
+                                checkAttributeName(column.getName(), methods, assignmentsByMethod, resultAceptor);
                             }
                         }
                     }
@@ -133,7 +126,22 @@ public class LocalizationFormNstrCheck
         }
     }
 
-    private boolean checkStatement(Statement statement)
+    private void checkAttributeName(String name, List<Method> methods,
+        Map<Method, Map<String, Statement>> assignmentsByMethod, ResultAcceptor resultAceptor)
+    {
+        String key = name.toLowerCase();
+        for (Method method : methods)
+        {
+            Map<String, Statement> assignments = assignmentsByMethod.get(method);
+            Statement statement = assignments.get(key);
+            if (statement != null && checkStatement(statement, assignments))
+            {
+                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, statement);
+            }
+        }
+    }
+
+    private boolean checkStatement(Statement statement, Map<String, Statement> methodAssignments)
     {
         if (statement instanceof SimpleStatement simpleStat)
         {
@@ -143,28 +151,37 @@ public class LocalizationFormNstrCheck
             }
             else if (simpleStat.getRight() instanceof StaticFeatureAccess sfa)
             {
-                String name = sfa.getName();
-                Method method = EcoreUtil2.getContainerOfType(statement, Method.class);
-                if (!checkSfa(name, method))
+                if (!checkSfa(sfa.getName(), methodAssignments))
                 {
                     return true;
                 }
             }
-            else if (statement instanceof Invocation invocationParam)
+            else if (simpleStat.getRight() instanceof Invocation invocationRight)
             {
-                String name = invocationParam.getMethodAccess().getName();
-                if (!(NSTR_RU.equalsIgnoreCase(name) || NSTR.equalsIgnoreCase(name)))
+                if (!invocationRight.getParams().isEmpty()
+                    && invocationRight.getParams().get(0) instanceof Invocation invocationParam)
                 {
-                    return true;
+                    String name = invocationParam.getMethodAccess().getName();
+                    if (!(NSTR_RU.equalsIgnoreCase(name) || NSTR.equalsIgnoreCase(name)))
+                    {
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
 
-    private Statement searchStatement(List<Statement> statemtnts, String attributeName)
+    private Map<String, Statement> collectAssignments(List<Statement> statements)
     {
-        for (Statement statement : statemtnts)
+        Map<String, Statement> result = new HashMap<>();
+        collectAssignments(statements, result);
+        return result;
+    }
+
+    private void collectAssignments(List<Statement> statements, Map<String, Statement> acc)
+    {
+        for (Statement statement : statements)
         {
             if (statement instanceof EmptyStatement)
             {
@@ -172,74 +189,34 @@ public class LocalizationFormNstrCheck
             }
             else if (statement instanceof SimpleStatement simp)
             {
-                if (simp.getLeft() instanceof DynamicFeatureAccess left)
+                if (simp.getLeft() instanceof StaticFeatureAccess left)
                 {
-                    if (left.getName().equalsIgnoreCase(attributeName))
-                    {
-                        return statement;
-                    }
+                    acc.putIfAbsent(left.getName().toLowerCase(), simp);
                 }
             }
             else if (statement instanceof IfStatement ifStatement)
             {
-                List<Statement> ifStatements = ifStatement.getIfPart().getStatements();
-                Statement stat = searchStatement(ifStatements, attributeName);
-                if (stat != null)
+                collectAssignments(ifStatement.getIfPart().getStatements(), acc);
+                collectAssignments(ifStatement.getElseStatements(), acc);
+                for (Conditional conditional : ifStatement.getElsIfParts())
                 {
-                    return stat;
-                }
-                List<Statement> elseStatements = ifStatement.getElseStatements();
-                stat = searchStatement(elseStatements, attributeName);
-                if (stat != null)
-                {
-                    return stat;
-                }
-                List<Conditional> elseIfParts = ifStatement.getElsIfParts();
-                for (Conditional conditional : elseIfParts)
-                {
-                    List<Statement> statementsElsIf = conditional.getStatements();
-                    stat = searchStatement(statementsElsIf, attributeName);
-                    if (stat != null)
-                    {
-                        return stat;
-                    }
+                    collectAssignments(conditional.getStatements(), acc);
                 }
             }
             else if (statement instanceof ForStatement forStatement)
             {
-                List<Statement> forStatements = forStatement.getStatements();
-                Statement stat = searchStatement(forStatements, attributeName);
-                if (stat != null)
-                {
-                    return stat;
-                }
+                collectAssignments(forStatement.getStatements(), acc);
             }
         }
-        return null;
     }
 
-    private boolean checkSfa(String name, Method method)
+    private boolean checkSfa(String name, Map<String, Statement> methodAssignments)
     {
-        List<Statement> statements = method.allStatements();
-        for (Statement statement : statements)
+        Statement statement = methodAssignments.get(name.toLowerCase());
+        if (statement instanceof SimpleStatement simpState && simpState.getRight() instanceof Invocation invocation)
         {
-            if (statement instanceof SimpleStatement simpState)
-            {
-                if (simpState.getLeft() instanceof StaticFeatureAccess left)
-                {
-                    if (left.getName().equalsIgnoreCase(name))
-                    {
-                        if (simpState.getRight() instanceof Invocation invocation)
-                        {
-                            String nameInv = invocation.getMethodAccess().getName();
-                            if (NSTR_RU.equalsIgnoreCase(nameInv) || NSTR.equalsIgnoreCase(nameInv))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
+            String nameInv = invocation.getMethodAccess().getName();
+            return NSTR_RU.equalsIgnoreCase(nameInv) || NSTR.equalsIgnoreCase(nameInv);
         }
         return false;
     }

@@ -21,10 +21,10 @@ import org.junit.Test;
 
 import com._1c.g5.v8.dt.validation.marker.Marker;
 import com._1c.g5.v8.dt.validation.marker.StandardExtraInfo;
-import com.e1c.v8codestyle.bsl.check.LoacalizationNstrCheck;
+import com.e1c.v8codestyle.bsl.check.LocalizationNstrCheck;
 
 /**
- * Tests for {@link LoacalizationNstrCheck} check.
+ * Tests for {@link LocalizationNstrCheck} check.
  *
  * @author Ivan Sergeev
  */
@@ -34,7 +34,7 @@ public class LocalizationNstrCheckTest
 
     public LocalizationNstrCheckTest()
     {
-        super(LoacalizationNstrCheck.class);
+        super(LocalizationNstrCheck.class);
     }
 
     /**

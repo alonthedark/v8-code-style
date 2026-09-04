@@ -20,10 +20,10 @@ import org.junit.Test;
 import com._1c.g5.v8.bm.core.IBmObject;
 import com._1c.g5.v8.dt.validation.marker.Marker;
 import com.e1c.g5.v8.dt.testing.check.SingleProjectReadOnlyCheckTestBase;
-import com.e1c.v8codestyle.bsl.check.LoacalizationFormNstrCheck;
+import com.e1c.v8codestyle.bsl.check.LocalizationFormNstrCheck;
 
 /**
- * Tests for {@link LoacalizationFormNstrCheck} check.
+ * Tests for {@link LocalizationFormNstrCheck} check.
  *
  * @author Ivan Sergeev
  */

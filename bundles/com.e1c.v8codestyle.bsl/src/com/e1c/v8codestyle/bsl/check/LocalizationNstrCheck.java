@@ -14,12 +14,15 @@ package com.e1c.v8codestyle.bsl.check;
 
 import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.INVOCATION;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.EcoreUtil2;
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
 import com._1c.g5.v8.dt.bsl.model.Conditional;
 import com._1c.g5.v8.dt.bsl.model.Expression;
@@ -107,7 +110,6 @@ public class LocalizationNstrCheck
         IProgressMonitor monitor)
     {
         Invocation invocation = (Invocation)object;
-        NodeModelUtils.findActualNodeFor(invocation).getText();
         if (!parameters.getString(MESSAGE_NAME)
             .toLowerCase()
             .contains(invocation.getMethodAccess().getName().toLowerCase())
@@ -121,18 +123,17 @@ public class LocalizationNstrCheck
         if (numberParam != -1)
         {
             Expression expression = params.get(numberParam);
-            if (expression instanceof StringLiteral stingLiteral)
+            if (expression instanceof StringLiteral)
             {
-                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue);
+                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, invocation);
             }
             else if (expression instanceof StaticFeatureAccess sfa)
             {
                 String name = sfa.getName();
                 Method method = EcoreUtil2.getContainerOfType(invocation, Method.class);
-                List<Statement> statements = method.allStatements();
-                if (!checkSfa(name, statements))
+                if (!checkSfa(name, method))
                 {
-                    resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue);
+                    resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, invocation);
                 }
             }
             else if (expression instanceof Invocation invocationParam)
@@ -149,7 +150,7 @@ public class LocalizationNstrCheck
                             String invName = inv.getMethodAccess().getName();
                             if (!(NSTR_RU.equalsIgnoreCase(invName) || NSTR.equalsIgnoreCase(invName)))
                             {
-                                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue);
+                                resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, invocation);
                             }
                         }
                     }
@@ -171,83 +172,74 @@ public class LocalizationNstrCheck
         return -1;
     }
 
-    private boolean checkSfa(String name, List<Statement> statements)
+    private final Map<Method, Set<String>> nstrAssignedNamesCache = Collections.synchronizedMap(new WeakHashMap<>());
+
+    private boolean checkSfa(String name, Method method)
+    {
+        Set<String> assignedNames =
+            nstrAssignedNamesCache.computeIfAbsent(method, m -> collectNstrAssignedNames(m.allStatements()));
+        return assignedNames.contains(name.toLowerCase());
+    }
+
+    private Set<String> collectNstrAssignedNames(List<Statement> statements)
+    {
+        Set<String> names = new HashSet<>();
+        collectNstrAssignedNamesRec(statements, names);
+        return names;
+    }
+
+    private void collectNstrAssignedNamesRec(List<Statement> statements, Set<String> names)
     {
         for (Statement statement : statements)
         {
             if (statement instanceof SimpleStatement simpState)
             {
-                if (checkSimpleState(simpState, name))
-                {
-                    return true;
-                }
+                collectFromSimpleState(simpState, names);
             }
             else if (statement instanceof IfStatement ifStatement)
             {
-                List<Statement> ifStatements = ifStatement.getIfPart().getStatements();
-                if (checkSfa(name, ifStatements))
+                collectNstrAssignedNamesRec(ifStatement.getIfPart().getStatements(), names);
+                collectNstrAssignedNamesRec(ifStatement.getElseStatements(), names);
+                for (Conditional conditional : ifStatement.getElsIfParts())
                 {
-                    return true;
-                }
-                List<Statement> elseStatements = ifStatement.getElseStatements();
-                if (checkSfa(name, elseStatements))
-                {
-                    return true;
-                }
-                List<Conditional> elseIfParts = ifStatement.getElsIfParts();
-                for (Conditional conditional : elseIfParts)
-                {
-                    List<Statement> statementsElsIf = conditional.getStatements();
-                    if (checkSfa(name, statementsElsIf))
-                    {
-                        return true;
-                    }
+                    collectNstrAssignedNamesRec(conditional.getStatements(), names);
                 }
             }
             else if (statement instanceof ForStatement forStatement)
             {
-                List<Statement> forStatements = forStatement.getStatements();
-                if (checkSfa(name, forStatements))
-                {
-                    return true;
-                }
+                collectNstrAssignedNamesRec(forStatement.getStatements(), names);
             }
         }
-        return false;
     }
 
-    private boolean checkSimpleState(SimpleStatement statement, String name)
+    private void collectFromSimpleState(SimpleStatement statement, Set<String> names)
     {
-        if (statement.getLeft() instanceof StaticFeatureAccess left)
+        if (statement.getLeft() instanceof StaticFeatureAccess left
+            && statement.getRight() instanceof Invocation invocation)
         {
-            NodeModelUtils.findActualNodeFor(statement).getText();
-            if (left.getName().equalsIgnoreCase(name))
+            String nameInv = invocation.getMethodAccess().getName();
+            boolean isNstr = NSTR_RU.equalsIgnoreCase(nameInv) || NSTR.equalsIgnoreCase(nameInv);
+
+            if (!isNstr && !invocation.getParams().isEmpty())
             {
-                if (statement.getRight() instanceof Invocation invocation)
+                for (Expression param : invocation.getParams())
                 {
-                    String nameInv = invocation.getMethodAccess().getName();
-                    if (NSTR_RU.equalsIgnoreCase(nameInv) || NSTR.equalsIgnoreCase(nameInv))
+                    if (param instanceof Invocation inv)
                     {
-                        return true;
-                    }
-                    else if (!invocation.getParams().isEmpty())
-                    {
-                        List<Expression> params = invocation.getParams();
-                        for (Expression param : params)
+                        String invName = inv.getMethodAccess().getName();
+                        if (NSTR_RU.equalsIgnoreCase(invName) || NSTR.equalsIgnoreCase(invName))
                         {
-                            if (param instanceof Invocation inv)
-                            {
-                                String invName = inv.getMethodAccess().getName();
-                                if (NSTR_RU.equalsIgnoreCase(invName) || NSTR.equalsIgnoreCase(invName))
-                                {
-                                    return true;
-                                }
-                            }
+                            isNstr = true;
+                            break;
                         }
                     }
                 }
             }
+
+            if (isNstr)
+            {
+                names.add(left.getName().toLowerCase());
+            }
         }
-        return false;
     }
 }
