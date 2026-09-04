@@ -179,7 +179,7 @@ public class LocalizationFormNstrCheck
         return result;
     }
 
-    private void collectAssignments(List<Statement> statements, Map<String, Statement> acc)
+    private void collectAssignments(List<Statement> statements, Map<String, Statement> names)
     {
         for (Statement statement : statements)
         {
@@ -191,21 +191,21 @@ public class LocalizationFormNstrCheck
             {
                 if (simp.getLeft() instanceof StaticFeatureAccess left)
                 {
-                    acc.putIfAbsent(left.getName().toLowerCase(), simp);
+                    names.putIfAbsent(left.getName().toLowerCase(), simp);
                 }
             }
             else if (statement instanceof IfStatement ifStatement)
             {
-                collectAssignments(ifStatement.getIfPart().getStatements(), acc);
-                collectAssignments(ifStatement.getElseStatements(), acc);
+                collectAssignments(ifStatement.getIfPart().getStatements(), names);
+                collectAssignments(ifStatement.getElseStatements(), names);
                 for (Conditional conditional : ifStatement.getElsIfParts())
                 {
-                    collectAssignments(conditional.getStatements(), acc);
+                    collectAssignments(conditional.getStatements(), names);
                 }
             }
             else if (statement instanceof ForStatement forStatement)
             {
-                collectAssignments(forStatement.getStatements(), acc);
+                collectAssignments(forStatement.getStatements(), names);
             }
         }
     }
