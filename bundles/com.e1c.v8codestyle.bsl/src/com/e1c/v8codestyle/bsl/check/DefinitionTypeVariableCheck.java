@@ -22,6 +22,7 @@ import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
 import com._1c.g5.v8.dt.bsl.model.BinaryExpression;
 import com._1c.g5.v8.dt.bsl.model.BinaryOperation;
+import com._1c.g5.v8.dt.bsl.model.Conditional;
 import com._1c.g5.v8.dt.bsl.model.Expression;
 import com._1c.g5.v8.dt.bsl.model.ForStatement;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
@@ -30,7 +31,6 @@ import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
 import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
-import com._1c.g5.v8.dt.bsl.model.UndefinedLiteral;
 import com._1c.g5.v8.dt.bsl.model.WhileStatement;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
@@ -94,7 +94,7 @@ public class DefinitionTypeVariableCheck
                         && !NodeModelUtils.findActualNodeFor(expressionRight)
                             .getText()
                             .toLowerCase()
-                            .contains("метаданные")) //$NON-NLS-1$
+                            .contains("метаданны")) //$NON-NLS-1$
                     {
                         if (binaryExp.getRight() instanceof StaticFeatureAccess sfa)
                         {
@@ -113,10 +113,6 @@ public class DefinitionTypeVariableCheck
                             {
                                 resultAcceptor.addIssue(Messages.DefinitionTypeVariableCheck_Issue);
                             }
-                        }
-                        else if (expressionRight instanceof UndefinedLiteral)
-                        {
-                            resultAcceptor.addIssue(Messages.DefinitionTypeVariableCheck_Issue);
                         }
                     }
                 }
@@ -146,6 +142,15 @@ public class DefinitionTypeVariableCheck
                 if (checkSfa(name, elseStatements))
                 {
                     return true;
+                }
+                List<Conditional> elseIfParts = ifStatement.getElsIfParts();
+                for (Conditional conditional : elseIfParts)
+                {
+                    List<Statement> statementsElsIf = conditional.getStatements();
+                    if (checkSfa(name, statementsElsIf))
+                    {
+                        return true;
+                    }
                 }
             }
             else if (statement instanceof ForStatement forStatement)
