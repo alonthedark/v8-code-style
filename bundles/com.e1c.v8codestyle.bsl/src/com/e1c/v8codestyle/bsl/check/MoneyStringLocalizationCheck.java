@@ -19,12 +19,14 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import com._1c.g5.v8.dt.bsl.model.Conditional;
 import com._1c.g5.v8.dt.bsl.model.ForStatement;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
 import com._1c.g5.v8.dt.bsl.model.Invocation;
 import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.Module;
 import com._1c.g5.v8.dt.bsl.model.ModuleType;
+import com._1c.g5.v8.dt.bsl.model.NumberLiteral;
 import com._1c.g5.v8.dt.bsl.model.OperatorStyleCreator;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
@@ -81,8 +83,7 @@ public class MoneyStringLocalizationCheck
             .issueType(IssueType.CODE_STYLE)
             .extension(new ModuleTopObjectNameFilterExtension())
             .extension(new StandardCheckExtension(778, getCheckId(), BslPlugin.PLUGIN_ID))
-            .parameter(MONEY_STRING_NAME, String.class, DEFAULT_NAMES,
-                Messages.MoneyStringLocalizationCheck_Parameter)
+            .parameter(MONEY_STRING_NAME, String.class, DEFAULT_NAMES, Messages.MoneyStringLocalizationCheck_Parameter)
             .module()
             .checkedObjectType(MODULE);
     }
@@ -98,6 +99,7 @@ public class MoneyStringLocalizationCheck
         }
         Form form = (Form)formModule.getOwner();
         List<FormAttribute> attributes = form.getAttributes();
+        List<Method> methods = BslUtil.allMethods(formModule);
         for (FormAttribute attribute : attributes)
         {
             List<TypeItem> types = attribute.getValueType().getTypes();
@@ -105,40 +107,12 @@ public class MoneyStringLocalizationCheck
             {
                 if ("Number".equalsIgnoreCase(McoreUtil.getTypeName(type))) //$NON-NLS-1$
                 {
-                    McoreUtil.getTypeName(attributes.get(1).getValueType().getTypes().get(0));
-                    List<Method> methods = BslUtil.allMethods(formModule);
                     for (Method method : methods)
                     {
                         List<Statement> statements = method.allStatements();
-                        Statement statement = searchStatements(statements, attribute.getName(), parameters);
-                        if (statement instanceof SimpleStatement simpleState)
+                        if (!statements.isEmpty())
                         {
-                            if (simpleState.getRight() instanceof Invocation right)
-                            {
-                                String name = right.getMethodAccess().getName();
-                                if (!MONEYFIELD_TYPE_DESCKRIPRION.equalsIgnoreCase(name))
-                                {
-                                    resultAceptor.addIssue(Messages.MoneyStringLocalizationCheck_Issue, statement);
-                                }
-                            }
-                            else if (simpleState.getRight() instanceof OperatorStyleCreator osc)
-                            {
-                                resultAceptor.addIssue(Messages.MoneyStringLocalizationCheck_Issue, statement);
-                            }
-                        }
-                    }
-                }
-                else if ("ValueTable".equalsIgnoreCase(McoreUtil.getTypeName(type))) //$NON-NLS-1$
-                {
-                    List<FormAttributeColumn> columns = attribute.getColumns();
-                    List<Method> methods = BslUtil.allMethods(formModule);
-                    for (FormAttributeColumn column : columns)
-                    {
-                        String colName = column.getName();
-                        for (Method method : methods)
-                        {
-                            List<Statement> statements = method.allStatements();
-                            Statement statement = searchStatements(statements, colName, parameters);
+                            Statement statement = searchStatements(statements, attribute.getName(), parameters);
                             if (statement instanceof SimpleStatement simpleState)
                             {
                                 if (simpleState.getRight() instanceof Invocation right)
@@ -147,6 +121,46 @@ public class MoneyStringLocalizationCheck
                                     if (!MONEYFIELD_TYPE_DESCKRIPRION.equalsIgnoreCase(name))
                                     {
                                         resultAceptor.addIssue(Messages.MoneyStringLocalizationCheck_Issue, statement);
+                                    }
+                                }
+                                else if (simpleState.getRight() instanceof OperatorStyleCreator)
+                                {
+                                    resultAceptor.addIssue(Messages.MoneyStringLocalizationCheck_Issue, statement);
+                                }
+                                else if (simpleState.getRight() instanceof NumberLiteral)
+                                {
+                                    resultAceptor.addIssue(Messages.MoneyStringLocalizationCheck_Issue, statement);
+                                }
+                            }
+                        }
+                    }
+                }
+                else if ("ValueTable".equalsIgnoreCase(McoreUtil.getTypeName(type))) //$NON-NLS-1$
+                {
+                    List<FormAttributeColumn> columns = attribute.getColumns();
+                    for (FormAttributeColumn column : columns)
+                    {
+                        List<TypeItem> typesColumn = column.getValueType().getTypes();
+                        String colName = column.getName();
+                        for (TypeItem typeColumn : typesColumn)
+                        {
+                            if ("Number".equalsIgnoreCase(McoreUtil.getTypeName(typeColumn))) //$NON-NLS-1$
+                            {
+                                for (Method method : methods)
+                                {
+                                    List<Statement> statements = method.allStatements();
+                                    Statement statement = searchStatements(statements, colName, parameters);
+                                    if (statement instanceof SimpleStatement simpleState)
+                                    {
+                                        if (simpleState.getRight() instanceof Invocation right)
+                                        {
+                                            String name = right.getMethodAccess().getName();
+                                            if (!MONEYFIELD_TYPE_DESCKRIPRION.equalsIgnoreCase(name))
+                                            {
+                                                resultAceptor.addIssue(Messages.MoneyStringLocalizationCheck_Issue,
+                                                    statement);
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -165,7 +179,8 @@ public class MoneyStringLocalizationCheck
             {
                 if (simp.getLeft() instanceof Invocation invocation)
                 {
-                    if ("Добавить".equalsIgnoreCase(invocation.getMethodAccess().getName())) //$NON-NLS-1$
+                    if ("Добавить".equalsIgnoreCase(invocation.getMethodAccess().getName()) //$NON-NLS-1$
+                        || "Вставить".equalsIgnoreCase(invocation.getMethodAccess().getName())) //$NON-NLS-1$
                     {
                         if (!invocation.getParams().isEmpty())
                         {
@@ -205,6 +220,16 @@ public class MoneyStringLocalizationCheck
                 if (stat != null)
                 {
                     return stat;
+                }
+                List<Conditional> elseIfParts = ifStatement.getElsIfParts();
+                for (Conditional conditional : elseIfParts)
+                {
+                    List<Statement> statementsElsIf = conditional.getStatements();
+                    stat = searchStatements(statementsElsIf, name, parameters);
+                    if (stat != null)
+                    {
+                        return stat;
+                    }
                 }
             }
             else if (statement instanceof ForStatement forStatement)
