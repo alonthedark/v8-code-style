@@ -31,6 +31,7 @@ import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
 import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
+import com._1c.g5.v8.dt.bsl.model.StringLiteral;
 import com._1c.g5.v8.dt.bsl.model.WhileStatement;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
@@ -113,6 +114,10 @@ public class DefinitionTypeVariableCheck
                             {
                                 resultAcceptor.addIssue(Messages.DefinitionTypeVariableCheck_Issue);
                             }
+                        }
+                        else if (binaryExp.getRight() instanceof StringLiteral)
+                        {
+                            resultAcceptor.addIssue(Messages.DefinitionTypeVariableCheck_Issue);
                         }
                     }
                 }
