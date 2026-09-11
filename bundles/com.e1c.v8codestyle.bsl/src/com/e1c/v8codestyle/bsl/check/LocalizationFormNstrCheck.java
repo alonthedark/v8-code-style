@@ -14,6 +14,7 @@ package com.e1c.v8codestyle.bsl.check;
 
 import static com._1c.g5.v8.dt.bsl.model.BslPackage.Literals.MODULE;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +33,13 @@ import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
 import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.StringLiteral;
+import com._1c.g5.v8.dt.form.model.AbstractDataPath;
+import com._1c.g5.v8.dt.form.model.DataPathReferredObject;
 import com._1c.g5.v8.dt.form.model.Form;
 import com._1c.g5.v8.dt.form.model.FormAttribute;
 import com._1c.g5.v8.dt.form.model.FormAttributeColumn;
+import com._1c.g5.v8.dt.form.model.FormField;
+import com._1c.g5.v8.dt.form.model.FormItem;
 import com._1c.g5.v8.dt.mcore.TypeItem;
 import com._1c.g5.v8.dt.mcore.util.McoreUtil;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
@@ -91,14 +96,32 @@ public class LocalizationFormNstrCheck
         Form form = (Form)formModule.getOwner();
         List<FormAttribute> attributes = form.getAttributes();
         List<Method> methods = formModule.allMethods();
-
+        List<FormItem> fields = form.getItems();
+        List<FormAttribute> displayedAttribute = new ArrayList<>();
+        for (FormItem formItem : fields)
+        {
+            if (formItem instanceof FormField formField)
+            {
+                AbstractDataPath data = formField.getDataPath();
+                if (data == null)
+                {
+                    continue;
+                }
+                List<DataPathReferredObject> refObjects = data.getObjects();
+                if (refObjects == null)
+                {
+                    continue;
+                }
+                displayedAttribute.addAll(findAttribute(refObjects));
+            }
+        }
         Map<Method, Map<String, Statement>> assignmentsByMethod = new HashMap<>();
         for (Method method : methods)
         {
             assignmentsByMethod.put(method, collectAssignments(method.allStatements()));
         }
 
-        for (FormAttribute attribute : attributes)
+        for (FormAttribute attribute : displayedAttribute)
         {
             List<TypeItem> types = attribute.getValueType().getTypes();
             for (TypeItem type : types)
@@ -136,6 +159,7 @@ public class LocalizationFormNstrCheck
             Statement statement = assignments.get(key);
             if (statement != null && checkStatement(statement, assignments))
             {
+                SimpleStatement simp = (SimpleStatement)statement;
                 resultAceptor.addIssue(Messages.LocalizationNstrCheck_Issue, statement);
             }
         }
@@ -145,9 +169,14 @@ public class LocalizationFormNstrCheck
     {
         if (statement instanceof SimpleStatement simpleStat)
         {
-            if (simpleStat.getRight() instanceof StringLiteral)
+            if (simpleStat.getRight() instanceof StringLiteral stringLiteral)
             {
-                return true;
+                String text = stringLiteral.getLines().get(0);
+                String clean = text.replace("\"", ""); //$NON-NLS-1$ //$NON-NLS-2$
+                if (!clean.isEmpty())
+                {
+                    return true;
+                }
             }
             else if (simpleStat.getRight() instanceof StaticFeatureAccess sfa)
             {
@@ -170,6 +199,19 @@ public class LocalizationFormNstrCheck
             }
         }
         return false;
+    }
+
+    private List<FormAttribute> findAttribute(List<DataPathReferredObject> refObjects)
+    {
+        List<FormAttribute> formAttributes = new ArrayList<>();
+        for (DataPathReferredObject dataPathReferredObject : refObjects)
+        {
+            if (dataPathReferredObject.getObject() instanceof FormAttribute formAttribute)
+            {
+                formAttributes.add(formAttribute);
+            }
+        }
+        return formAttributes;
     }
 
     private Map<String, Statement> collectAssignments(List<Statement> statements)

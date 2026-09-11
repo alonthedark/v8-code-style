@@ -161,13 +161,23 @@ public class LocalizationNstrCheck
 
     private int numberParametr(String name, ICheckParameters parameters)
     {
-        if (parameters.getString(MESSAGE_NAME_ONE).toLowerCase().contains(name.toLowerCase()))
+        String paramOne = parameters.getString(MESSAGE_NAME_ONE);
+        String paramZero = parameters.getString(MESSAGE_NAME_ZERO);
+        String[] arrayOne = paramOne.split(DELIMITER);
+        String[] arrayZero = paramZero.split(DELIMITER);
+        for (String string : arrayOne)
         {
-            return 1;
+            if (string.equalsIgnoreCase(name))
+            {
+                return 1;
+            }
         }
-        else if (parameters.getString(MESSAGE_NAME_ZERO).toLowerCase().contains(name.toLowerCase()))
+        for (String string : arrayZero)
         {
-            return 0;
+            if (string.equalsIgnoreCase(name))
+            {
+                return 0;
+            }
         }
         return -1;
     }
