@@ -18,23 +18,28 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.nodemodel.ICompositeNode;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
 import com._1c.g5.v8.dt.bsl.model.BinaryExpression;
 import com._1c.g5.v8.dt.bsl.model.BinaryOperation;
 import com._1c.g5.v8.dt.bsl.model.Conditional;
+import com._1c.g5.v8.dt.bsl.model.DynamicFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.Expression;
-import com._1c.g5.v8.dt.bsl.model.ForStatement;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
 import com._1c.g5.v8.dt.bsl.model.Invocation;
+import com._1c.g5.v8.dt.bsl.model.LoopStatement;
 import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
 import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.StringLiteral;
-import com._1c.g5.v8.dt.bsl.model.WhileStatement;
+import com._1c.g5.v8.dt.bsl.model.TryExceptStatement;
+import com.e1c.g5.v8.dt.check.BslDirectLocationIssue;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
+import com.e1c.g5.v8.dt.check.DirectLocation;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
+import com.e1c.g5.v8.dt.check.Issue;
 import com.e1c.g5.v8.dt.check.components.ModuleTopObjectNameFilterExtension;
 import com.e1c.g5.v8.dt.check.settings.IssueSeverity;
 import com.e1c.g5.v8.dt.check.settings.IssueType;
@@ -83,43 +88,9 @@ public class DefinitionTypeVariableCheck
         {
             if (statement.getIfPart().getPredicate() instanceof BinaryExpression binaryExp)
             {
-                if (binaryExp.getOperation().equals(BinaryOperation.EQ)
-                    || binaryExp.getOperation().equals(BinaryOperation.NE))
+                if (checkBinaryExpression(binaryExp, statement))
                 {
-                    Expression expressionLeft = binaryExp.getLeft();
-                    Expression expressionRight = binaryExp.getRight();
-                    if (NodeModelUtils.findActualNodeFor(expressionLeft)
-                        .getText()
-                        .toLowerCase()
-                        .contains("метаданные()") //$NON-NLS-1$
-                        && !NodeModelUtils.findActualNodeFor(expressionRight)
-                            .getText()
-                            .toLowerCase()
-                            .contains("метаданны")) //$NON-NLS-1$
-                    {
-                        if (binaryExp.getRight() instanceof StaticFeatureAccess sfa)
-                        {
-                            String sfaName = sfa.getName();
-                            Method method = EcoreUtil2.getContainerOfType(statement, Method.class);
-                            List<Statement> statements = method.allStatements();
-                            if (!checkSfa(sfaName, statements))
-                            {
-                                resultAcceptor.addIssue(Messages.DefinitionTypeVariableCheck_Issue);
-                            }
-                        }
-                        else if (binaryExp.getRight() instanceof Invocation inv)
-                        {
-                            if (!inv.getMethodAccess().getName().equalsIgnoreCase(TYPE_RU)
-                                || !inv.getMethodAccess().getName().equalsIgnoreCase(TYPE))
-                            {
-                                resultAcceptor.addIssue(Messages.DefinitionTypeVariableCheck_Issue);
-                            }
-                        }
-                        else if (binaryExp.getRight() instanceof StringLiteral)
-                        {
-                            resultAcceptor.addIssue(Messages.DefinitionTypeVariableCheck_Issue);
-                        }
-                    }
+                    addIssue(resultAcceptor, statement);
                 }
             }
         }
@@ -158,18 +129,18 @@ public class DefinitionTypeVariableCheck
                     }
                 }
             }
-            else if (statement instanceof ForStatement forStatement)
+            else if (statement instanceof LoopStatement loopStatement)
             {
-                List<Statement> forStatements = forStatement.getStatements();
+                List<Statement> forStatements = loopStatement.getStatements();
                 if (checkSfa(name, forStatements))
                 {
                     return true;
                 }
             }
-            else if (statement instanceof WhileStatement whileStatement)
+            else if (statement instanceof TryExceptStatement tryStatement)
             {
-                List<Statement> forStatements = whileStatement.getStatements();
-                if (checkSfa(name, forStatements))
+                List<Statement> tryStatementStatements = tryStatement.getTryStatements();
+                if (checkSfa(name, tryStatementStatements))
                 {
                     return true;
                 }
@@ -210,5 +181,85 @@ public class DefinitionTypeVariableCheck
             }
         }
         return false;
+    }
+
+    private boolean checkBinaryExpression(BinaryExpression binaryExp, Statement statement)
+    {
+        if (binaryExp.getOperation().equals(BinaryOperation.EQ) || binaryExp.getOperation().equals(BinaryOperation.NE))
+        {
+            Expression expressionLeft = binaryExp.getLeft();
+            Expression expressionRight = binaryExp.getRight();
+            if (expressionLeft instanceof DynamicFeatureAccess dynamicFeatureAccess
+                && dynamicFeatureAccess.getSource() instanceof Invocation invocation)
+            {
+                if (checkName(invocation)
+                    && !NodeModelUtils.findActualNodeFor(expressionRight).getText().toLowerCase().contains("метаданны"))
+                {
+                    if (binaryExp.getRight() instanceof StaticFeatureAccess sfa)
+                    {
+                        String sfaName = sfa.getName();
+                        Method method = EcoreUtil2.getContainerOfType(statement, Method.class);
+                        List<Statement> statements = method.allStatements();
+                        if (!checkSfa(sfaName, statements))
+                        {
+                            return true;
+                        }
+                    }
+                    else if (binaryExp.getRight() instanceof Invocation inv)
+                    {
+                        if (!TYPE_RU.equalsIgnoreCase(inv.getMethodAccess().getName())
+                            || !TYPE.equalsIgnoreCase(inv.getMethodAccess().getName()))
+                        {
+                            return true;
+                        }
+                    }
+                    else if (binaryExp.getRight() instanceof StringLiteral)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkName(Invocation invocation)
+    {
+        String name = invocation.getMethodAccess().getName();
+        if ("Метаданные".equalsIgnoreCase(name) || "Metadata".equalsIgnoreCase(name)) //$NON-NLS-1$ //$NON-NLS-2$
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private void addIssue(ResultAcceptor resultAceptor, Statement statement)
+    {
+        ICompositeNode node = NodeModelUtils.findActualNodeFor(statement);
+        if (node == null)
+        {
+            return;
+        }
+        String nodeText = node.getText();
+        int indexThen = nodeText.toLowerCase().indexOf("then"); //$NON-NLS-1$
+        int indexThenRu = nodeText.toLowerCase().indexOf("тогда"); //$NON-NLS-1$
+        String firstLine = null;
+        if (indexThenRu != -1)
+        {
+            firstLine = nodeText.substring(0, indexThenRu + 5);
+            firstLine = firstLine.substring(firstLine.toLowerCase().indexOf("если"), firstLine.length()); //$NON-NLS-1$
+        }
+        else if (indexThen != -1)
+        {
+            firstLine = nodeText.substring(0, indexThen + 4);
+            firstLine = firstLine.substring(firstLine.toLowerCase().indexOf("if"), firstLine.length()); //$NON-NLS-1$
+        }
+        if (firstLine != null)
+        {
+            DirectLocation directLocation =
+                new DirectLocation(node.getOffset(), firstLine.length(), node.getStartLine(), statement);
+            Issue issue = new BslDirectLocationIssue(Messages.DefinitionTypeVariableCheck_Issue, directLocation);
+            resultAceptor.addIssue(issue);
+        }
     }
 }
