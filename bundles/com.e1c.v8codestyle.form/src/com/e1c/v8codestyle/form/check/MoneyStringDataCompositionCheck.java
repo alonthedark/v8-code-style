@@ -52,7 +52,7 @@ public class MoneyStringDataCompositionCheck
     private static final String CHECK_ID = "money-string-localization-data-composition"; //$NON-NLS-1$
     private static final String MONEY_STRING_NAME = "Money string name"; //$NON-NLS-1$
     private static final Set<String> IMMUTABLE_MAP_MONEY_STRING =
-        Set.of("Сумма", "Цена", "Себестоимость", "СуммаИзлишков"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        Set.of("Сумма", "Цена", "Себестоимость", "СуммаИзлишков", "Amount", "Price", "Cost", "SurplusAmount"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 
     private static final String DELIMITER = ","; //$NON-NLS-1$
 
@@ -150,7 +150,6 @@ public class MoneyStringDataCompositionCheck
                 {
                     int precision = numberQual.getPrecision();
                     int scale = numberQual.getScale();
-                    boolean negative = numberQual.isNonNegative();
                     if (precision == 31 && scale == 2)
                     {
                         return false;

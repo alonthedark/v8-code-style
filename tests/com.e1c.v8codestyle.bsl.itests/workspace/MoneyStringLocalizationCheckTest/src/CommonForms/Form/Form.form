@@ -86,7 +86,7 @@
     <edit>
       <common>true</common>
     </edit>
-        <columns>
+    <columns>
       <name>Цена</name>
       <title>
         <value>Цена</value>
