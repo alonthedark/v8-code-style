@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.xtext.EcoreUtil2;
+import org.eclipse.xtext.nodemodel.ICompositeNode;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 
 import com._1c.g5.v8.dt.bsl.model.BooleanLiteral;
@@ -26,14 +27,18 @@ import com._1c.g5.v8.dt.bsl.model.EmptyStatement;
 import com._1c.g5.v8.dt.bsl.model.ForStatement;
 import com._1c.g5.v8.dt.bsl.model.IfStatement;
 import com._1c.g5.v8.dt.bsl.model.Invocation;
+import com._1c.g5.v8.dt.bsl.model.LoopStatement;
 import com._1c.g5.v8.dt.bsl.model.Method;
 import com._1c.g5.v8.dt.bsl.model.ReturnStatement;
 import com._1c.g5.v8.dt.bsl.model.SimpleStatement;
 import com._1c.g5.v8.dt.bsl.model.Statement;
 import com._1c.g5.v8.dt.bsl.model.StaticFeatureAccess;
 import com._1c.g5.v8.dt.bsl.model.TryExceptStatement;
+import com.e1c.g5.v8.dt.check.BslDirectLocationIssue;
 import com.e1c.g5.v8.dt.check.CheckComplexity;
+import com.e1c.g5.v8.dt.check.DirectLocation;
 import com.e1c.g5.v8.dt.check.ICheckParameters;
+import com.e1c.g5.v8.dt.check.Issue;
 import com.e1c.g5.v8.dt.check.components.ModuleTopObjectNameFilterExtension;
 import com.e1c.g5.v8.dt.check.settings.IssueSeverity;
 import com.e1c.g5.v8.dt.check.settings.IssueType;
@@ -89,7 +94,7 @@ public class EmptyQueryResultCheck
             {
                 Method method = EcoreUtil2.getContainerOfType(statement, Method.class);
                 List<Statement> statements = method.allStatements();
-                int index = indexStatement(statements, statement);
+                int index = statements.indexOf(statement);
                 if (index == -1)
                 {
                     return;
@@ -100,11 +105,11 @@ public class EmptyQueryResultCheck
                     return;
                 }
                 SimpleStatement selectStatement =
-                    (SimpleStatement)searchSelectStatement(statements.subList(index, statements.size() - 1),
+                    (SimpleStatement)searchSelectStatement(statements.subList(index, statements.size()),
                         nameSelect);
                 if (selectStatement != null)
                 {
-                    int indexSelectStatement = indexStatement(statements, selectStatement);
+                    int indexSelectStatement = statements.indexOf(selectStatement);
                     if (indexSelectStatement == -1)
                     {
                         return;
@@ -115,36 +120,24 @@ public class EmptyQueryResultCheck
                     {
                         return;
                     }
-                    Statement findIf = searchCheckQuoryResult(
-                        statements.subList(indexSelectStatement, statements.size() - 1), sfaName);
-                    if (findIf instanceof IfStatement)
+                    Statement findIf = searchCheckQueryResult(
+                        statements.subList(indexSelectStatement, statements.size()), sfaName);
+                    if (findIf instanceof IfStatement ifStatement)
                     {
-                        resultAceptor.addIssue(Messages.EmptyQueryResultCheck_Issue, findIf);
+                        addIssue(resultAceptor, ifStatement);
                     }
                 }
                 else if (selectStatement == null)
                 {
                     String name = null;
-                    Statement findIf = searchCheckQuoryResult(statements.subList(index, statements.size() - 1), name);
-                    if (findIf != null)
+                    Statement findIf = searchCheckQueryResult(statements.subList(index, statements.size()), name);
+                    if (findIf instanceof IfStatement ifStatement)
                     {
-                        resultAceptor.addIssue(Messages.EmptyQueryResultCheck_Issue, findIf);
+                        addIssue(resultAceptor, ifStatement);
                     }
                 }
             }
         }
-    }
-
-    private int indexStatement(List<Statement> statements, Statement searchStatement)
-    {
-        for (int i = 0; i < statements.size() - 1; i++)
-        {
-            if (statements.get(i) == searchStatement)
-            {
-                return i;
-            }
-        }
-        return -1;
     }
 
     private Statement searchSelectStatement(List<Statement> statements, String name)
@@ -189,7 +182,7 @@ public class EmptyQueryResultCheck
         return null;
     }
 
-    private Statement searchCheckQuoryResult(List<Statement> statements, String name)
+    private Statement searchCheckQueryResult(List<Statement> statements, String name)
     {
         for (Statement statement : statements)
         {
@@ -260,7 +253,7 @@ public class EmptyQueryResultCheck
                     }
                 }
             }
-            else if (statement instanceof ForStatement forStatement)
+            else if (statement instanceof LoopStatement forStatement)
             {
                 if (name == null)
                 {
@@ -278,7 +271,20 @@ public class EmptyQueryResultCheck
                 {
                     return null;
                 }
-                tryExceptStatement.getTryStatements();
+                List<Statement> tryStatements = tryExceptStatement.getTryStatements();
+                Statement stat = searchSelectStatement(tryStatements, name);
+                if (stat != null)
+                {
+                    return stat;
+                }
+                else if (stat == null)
+                {
+                    Statement tryStatment = searchCheckQueryResult(tryStatements, name);
+                    if (tryStatment != null)
+                    {
+                        return tryStatment;
+                    }
+                }
             }
         }
         return null;
@@ -292,11 +298,27 @@ public class EmptyQueryResultCheck
         {
             return stat;
         }
+        else if (stat == null)
+        {
+            Statement ifStatment = searchCheckQueryResult(ifStatements, name);
+            if (ifStatment != null)
+            {
+                return ifStatment;
+            }
+        }
         List<Statement> elseStatements = ifStatement.getElseStatements();
         stat = searchSelectStatement(elseStatements, name);
         if (stat != null)
         {
             return stat;
+        }
+        else if (stat == null)
+        {
+            Statement elseStatment = searchCheckQueryResult(elseStatements, name);
+            if (elseStatment != null)
+            {
+                return elseStatment;
+            }
         }
         List<Conditional> elseIfParts = ifStatement.getElsIfParts();
         for (Conditional conditional : elseIfParts)
@@ -307,18 +329,64 @@ public class EmptyQueryResultCheck
             {
                 return stat;
             }
+            else if (stat == null)
+            {
+                Statement elseIfStatment = searchCheckQueryResult(statementsElsIf, name);
+                if (elseIfStatment != null)
+                {
+                    return elseIfStatment;
+                }
+            }
         }
         return null;
     }
 
-    private Statement searchForStatement(ForStatement forStatement, String name)
+    private Statement searchForStatement(LoopStatement loopStatement, String name)
     {
-        List<Statement> forStatements = forStatement.getStatements();
+        List<Statement> forStatements = loopStatement.getStatements();
         Statement stat = searchSelectStatement(forStatements, name);
         if (stat != null)
         {
             return stat;
         }
+        else if (stat == null)
+        {
+            Statement elseIfStatment = searchCheckQueryResult(forStatements, name);
+            if (elseIfStatment != null)
+            {
+                return elseIfStatment;
+            }
+        }
         return null;
+    }
+
+    private void addIssue(ResultAcceptor resultAceptor, Statement statement)
+    {
+        ICompositeNode node = NodeModelUtils.findActualNodeFor(statement);
+        if (node == null)
+        {
+            return;
+        }
+        String nodeText = node.getText();
+        int indexThen = nodeText.toLowerCase().indexOf("then"); //$NON-NLS-1$
+        int indexThenRu = nodeText.toLowerCase().indexOf("тогда"); //$NON-NLS-1$
+        String firstLine = null;
+        if (indexThenRu != -1)
+        {
+            firstLine = nodeText.substring(0, indexThenRu + 5);
+            firstLine = firstLine.substring(firstLine.toLowerCase().indexOf("если"), firstLine.length()); //$NON-NLS-1$
+        }
+        else if (indexThen != -1)
+        {
+            firstLine = nodeText.substring(0, indexThen + 4);
+            firstLine = firstLine.substring(firstLine.toLowerCase().indexOf("if"), firstLine.length()); //$NON-NLS-1$
+        }
+        if (firstLine != null)
+        {
+            DirectLocation directLocation =
+                new DirectLocation(node.getOffset(), firstLine.length(), node.getStartLine(), statement);
+            Issue issue = new BslDirectLocationIssue(Messages.EmptyQueryResultCheck_Issue, directLocation);
+            resultAceptor.addIssue(issue);
+        }
     }
 }
