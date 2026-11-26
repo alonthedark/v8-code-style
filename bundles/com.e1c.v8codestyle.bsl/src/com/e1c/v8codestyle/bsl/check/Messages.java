@@ -239,6 +239,20 @@ final class Messages
 
     public static String ExtensionMethodPrefixCheck_Title;
 
+    public static String LocalizationNstrCheck_Title;
+
+    public static String LocalizationNstrCheck_Description;
+
+    public static String LocalizationNstrCheck_Issue;
+
+    public static String LocalizationNstrCheck_Parameter_Title;
+
+    public static String LocalizationNstrCheck_Parameter_Invocation_Name;
+
+    public static String LocalizationNstrCheck_Parameter_Title_One;
+
+    public static String LocalizationNstrCheck_Parameter_Title_Zero;
+
     public static String EmptyQueryResultCheck_Title;
 
     public static String EmptyQueryResultCheck_Description;
@@ -587,7 +601,7 @@ final class Messages
     public static String VariableNameInvalidCheck_variable_name_is_invalid;
     public static String VariableNameInvalidCheck_variable_name_must_start_with_a_capital_letter;
     public static String VariableNameInvalidCheck_variable_name_starts_with_an_underline;
-    
+
     public static String OverridableModuleOnlyExportMethodsCheck_Title;
     public static String OverridableModuleOnlyExportMethodsCheck_Description;
     public static String OverridableModuleOnlyExportMethodsCheck_Procedure_Issue;
@@ -611,7 +625,7 @@ final class Messages
     public static String NotifyCallAfterObjectChange_Title;
     public static String NotifyCallAfterObjectChange_Description;
     public static String NotifyCallAfterObjectChange_Issue;
-        
+
     static
     {
         // initialize resource bundle
